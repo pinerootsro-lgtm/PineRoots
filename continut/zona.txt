@@ -1,0 +1,10 @@
+# CE PUTEȚI FACE ÎN ZONĂ
+# Format: Nume | Unde | Descriere  (un rând = un loc)
+
+Țâcla Gavrii | Mărișel | Cel mai frumos punct de belvedere din Mărișel. Circuit de aproximativ 4 km, cu panoramă asupra munților.
+Lacul Tarnița | 8 km de apă | Apă limpede, bună pentru plimbări și liniște.
+Lacul Beliș-Fântânele | Someșul Cald | Cel mai mare lac de acumulare de pe Someșul Cald. Pentru pescari și iubitori de natură.
+Pârtia Mărișel | în sat | Trei pârtii, telescaun și nocturnă iarna. Vara, trasee de bicicletă; telescaunul merge în weekend.
+Cascada Vălul Miresei | Răchițele | Una dintre cele mai fotografiate cascade din Apuseni.
+Muzeul Satului | Mărișel | Tradiții locale, inclusiv obiceiul „Junii Mărișelului”, inclus în patrimoniul UNESCO.
+ATV, călărie, căruță | la cerere | ATV-uri de închiriat, călărie prin împrejurimi și plimbare cu căruța, organizată la cerere.

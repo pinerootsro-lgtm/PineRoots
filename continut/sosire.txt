@@ -1,0 +1,22 @@
+# TEXTELE PAGINII
+# Format: cheie: text. Fiecare text stă pe un singur rând.
+# Schimbi doar ce e după primele „:”. Nu modifica numele din stânga.
+
+intro: Tot ce vă trebuie pentru drum, poartă și cheie. Deschideți pagina înainte de ultimii kilometri, pentru că acolo semnalul vine și pleacă.
+
+pas1-titlu: Cutia cu cifru
+pas1-text: E pe gardul de lemn din stânga porții, sub plăcuța cu numărul 3. Formați codul și deschideți cutia. Înăuntru găsiți cheia, împreună cu telecomanda porții.
+
+pas2-titlu: Poarta
+pas2-text: Opriți mașina în fața senzorilor și apăsați butonul A de pe telecomandă. Poarta se deschide spre exterior.
+pas2-asteptati: Așteptați până se deschide complet și becul portocaliu nu mai luminează. Abia apoi intrați.
+pas2-de-ce: Dacă treceți printre senzori cât timp poarta încă se mișcă, ea se închide imediat ce termină deschiderea.
+pas2-daca-titlu: Dacă poarta începe totuși să se închidă
+pas2-daca-1: Treceți rapid prin ambele perechi de senzori.
+pas2-daca-2: Sau apăsați butonul A și poarta se oprește.
+pas2-plecare: La plecare procedați la fel.
+
+pas3-titlu: Cheia casei
+pas3-text: O găsiți în locul arătat de săgeată, lângă grinda din dreapta ușii de la intrare.
+
+final: Vă dorim odihnă plăcută. Pentru orice întrebare sau problemă, răspundeți la mesajul nostru.

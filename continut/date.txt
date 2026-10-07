@@ -1,0 +1,25 @@
+# DATELE DE BAZĂ
+# Format: cheie: valoare
+# Schimbi doar ce e după primele „:”. Nu modifica numele din stânga.
+# Rândurile care încep cu # nu apar pe pagină.
+
+check-in: 14:00
+check-in-nota: Altă oră? Ne înțelegem.
+check-out: 12:00
+
+# CODUL CUTIEI NU SE SCRIE AICI: tot ce e în acest folder e public pe GitHub.
+# Codul merge la finalul linkului pe care îl trimiți oaspeților:
+#   https://axelum-tech.github.io/pineroots/#cod=5554
+# Când schimbi codul la cutie, schimbi doar cifrele din link.
+cod-cutie:
+
+wifi-retea: PineHills
+wifi-parola: MariselCopcea3
+wifi-nota: Sunt mai multe rețele. Vă puteți conecta la oricare are „PineHills” în nume.
+
+# Telefonul apare la finalul paginii doar dacă îl completezi (ex: 0722 123 456)
+telefon:
+
+adresa: Str. Copcea 3, Mărișel, jud. Cluj
+google-maps: https://maps.app.goo.gl/qpKKTKTeuUhi1MVh6
+waze: https://waze.com/ul/hu823mqj54

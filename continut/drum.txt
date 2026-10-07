@@ -1,0 +1,7 @@
+# DRUMUL PÂNĂ LA POARTĂ
+# Format: Titlu | Text  (un rând = o linie din tabel)
+
+Navigație | Google Maps sau Waze vă duc direct la poartă.
+Drum | Pavat de la șoseaua principală până la cabană. Ajungeți cu orice mașină.
+Semnal | Pe ultimii 10–15 km poate dispărea, în funcție de operator. E normal.
+Cumpărături | Marketul „La Doi Pași”, în sat, la 4 km de cabană.

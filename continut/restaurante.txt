@@ -1,0 +1,9 @@
+# UNDE MÂNCAȚI
+# Format: Nume | Unde | Descriere  (un rând = un restaurant)
+
+Cabana Moților | Mărișel | Ciorba zilei, atmosferă de munte și priveliște.
+Popasul Iancului | Mărișel | Bucătărie românească, de la mic dejun la cină. Bun și pentru grupuri mari.
+După Ski la wU | Mărișel | Local mic, pentru o masă rapidă.
+Colț de Rai | Beliș | Terasă și foișor cu priveliște. Bucătărie transilvăneană din ingrediente locale.
+Tamas Bistro | Săvădisla | Celebru pentru gulaș și papanași.
+Gasthaus Spath | Șăndulești | Porții generoase, prețuri decente.
