@@ -15,7 +15,9 @@
 <meta property="og:image" content="https://pinerootsro-lgtm.github.io/PineRoots/media/previzualizare.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="632">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;1,300&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -23,7 +25,7 @@
 /* Layout: one quiet column that walks the guest from the road to the door; a thin path line ties the three arrival steps together. */
 :root{
   --paper:#EDEEE8; --panel:#E2E4DC; --ink:#1C1F1B; --muted:#585E55; --line:#C9CCC1;
-  --pine:#355640; --lamp:#D9761A; --lamp-glow:rgba(217,118,26,.28); --chip:#F6F6F1;
+  --pine:#355640; --bronze:#8A5B3B; --lamp:#D9761A; --lamp-glow:rgba(217,118,26,.28); --chip:#F6F6F1;
   --f-display:"Spectral","Iowan Old Style",Georgia,serif;
   --f-body:"Hanken Grotesk","Segoe UI",system-ui,-apple-system,sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
@@ -32,7 +34,7 @@
 @media (prefers-color-scheme: dark){
   :root{
     --paper:#121512; --panel:#1B1F1B; --ink:#E5E5DD; --muted:#A0A79B; --line:#30352F;
-    --pine:#9CBDA2; --lamp:#F09A45; --lamp-glow:rgba(240,154,69,.26); --chip:#1E231E; color-scheme:dark;
+    --pine:#9CBDA2; --bronze:#C99C78; --lamp:#F09A45; --lamp-glow:rgba(240,154,69,.26); --chip:#1E231E; color-scheme:dark;
   }
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -50,7 +52,9 @@ button{font:inherit;color:inherit}
 /* hero */
 .hero{display:grid;gap:18px}
 .eyebrow{margin:0;font-size:12px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
-.eyebrow .glyph{color:var(--pine);margin-inline:.55em;vertical-align:-1px}
+.brand{display:flex;align-items:center;gap:14px}
+.mark{width:46px;height:46px;flex:none;color:var(--bronze)}
+.eyebrow .sep{margin-inline:.55em;color:var(--bronze)}
 h1{margin:0;font-family:var(--f-display);font-weight:300;font-size:clamp(2.6rem,9vw,4rem);line-height:1.02;letter-spacing:-.015em;text-wrap:balance}
 .lead{margin:0;max-width:33rem;font-size:1.08rem}
 .actions{display:flex;flex-wrap:wrap;gap:10px}
@@ -228,7 +232,7 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
 
     app.innerHTML =
       '<header class="hero">' +
-        '<p class="eyebrow">PineRoots<svg class="glyph" viewBox="0 0 12 14" width="11" height="13" aria-hidden="true"><path d="M6 .5 10.2 6.6H8.1l3.1 4.4H.8l3.1-4.4H1.8z" fill="currentColor"/><rect x="5.3" y="11" width="1.4" height="2.6" fill="currentColor"/></svg>Mărișel, Munții Apuseni</p>' +
+        '<div class="brand"><svg class="mark" viewBox="134 54 432 432" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="butt"><path d="M350,64 L556,270 L350,476 L144,270 Z M366,315 L418,273 L494,332 M418,273 V408 M258,383 L347,327 M350,146 V476" stroke-linejoin="miter"/><path d="M304,212 Q335.2,184.7 350,146 Q365.9,184.9 398,212 M350,210 Q331.8,244.3 299,265 M350,209 Q376.6,234.8 407,256 M350,264 Q323.2,299.2 288,326 M350,259 Q367.5,271.7 387,281" stroke-linejoin="round"/></g></svg><p class="eyebrow">PineRoots<span class="sep" aria-hidden="true">·</span>Mărișel, Munții Apuseni</p></div>' +
         "<h1>Până la ușa cabanei</h1>" +
         (S.intro ? '<p class="lead">' + t("intro") + "</p>" : "") +
         '<div class="actions">' +
