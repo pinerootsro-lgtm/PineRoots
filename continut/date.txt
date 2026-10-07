@@ -9,7 +9,7 @@ check-out: 12:00
 
 # CODUL CUTIEI NU SE SCRIE AICI: tot ce e în acest folder e public pe GitHub.
 # Codul merge la finalul linkului pe care îl trimiți oaspeților:
-#   https://axelum-tech.github.io/pineroots/#cod=5554
+#   https://pinerootsro-lgtm.github.io/pineroots/#cod=5554
 # Când schimbi codul la cutie, schimbi doar cifrele din link.
 cod-cutie:
 

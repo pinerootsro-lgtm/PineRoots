@@ -2,7 +2,7 @@
 
 Pagina pe care o primesc oaspeții înainte de sosire: drumul, cutia cu cifru, poarta, cheia casei, Wi-Fi, regulile casei și recomandări din zonă.
 
-**Link pentru oaspeți:** https://axelum-tech.github.io/pineroots/#cod=5554
+**Link pentru oaspeți:** https://pinerootsro-lgtm.github.io/pineroots/#cod=5554
 
 Numărul de după `#cod=` este codul cutiei. Nu e scris nicăieri în fișiere, pentru că tot ce e aici e public. Când schimbi codul la cutie, schimbi doar cifrele din link.
 
@@ -20,7 +20,7 @@ Tot textul stă în folderul `continut/`. Nu e nevoie să atingi `index.html`.
 | Restaurante | `continut/restaurante.txt` |
 
 Pași, pe telefon sau pe calculator:
-1. Deschide fișierul pe github.com/Axelum-tech/pineroots.
+1. Deschide fișierul pe github.com/pinerootsro-lgtm/pineroots.
 2. Apasă creionul (Edit), modifică textul, apoi apasă „Commit changes”.
 3. Pagina se actualizează în 1–2 minute.
 
