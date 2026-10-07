@@ -198,24 +198,12 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
     return d;
   }
 
-  /* The lockbox code travels in the guest's link (#cod=5554), never in the public files. */
-  function codeFromLink(){
-    var KEY = "pineroots-cod";
-    var m = /(?:^#|&)cod=([0-9A-Za-z]{1,12})/.exec(location.hash);
-    if (m) {
-      try { localStorage.setItem(KEY, JSON.stringify({ c: m[1], t: Date.now() })); } catch (e) {}
-      return m[1];
-    }
-    try {
-      var s = JSON.parse(localStorage.getItem(KEY) || "null");
-      if (s && s.c && Date.now() - s.t < 21 * 864e5) return s.c;
-    } catch (e) {}
-    return "";
-  }
+  /* The lockbox code is sent in the guest's message, never published here. Clear any code an older link stored. */
+  try { localStorage.removeItem("pineroots-cod"); } catch (e) {}
 
   function render(c){
     var D = c.date, S = c.sosire;
-    var code = codeFromLink() || String(D["cod-cutie"] || "").replace(/\s+/g, "");
+    var code = String(D["cod-cutie"] || "").replace(/\s+/g, "");
     var t = function(k){ return esc(S[k] || ""); };
 
     var route = c.drum.map(function(r){

@@ -5,7 +5,7 @@
 intro: Tot ce vă trebuie pentru drum, poartă și cheie. Deschideți pagina înainte de ultimii kilometri, pentru că acolo semnalul vine și pleacă.
 
 pas1-titlu: Cutia cu cifru
-pas1-text: E pe gardul de lemn din stânga porții, sub plăcuța cu numărul 3. Formați codul și deschideți cutia. Înăuntru găsiți cheia, împreună cu telecomanda porții.
+pas1-text: E pe gardul de lemn din stânga porții, sub plăcuța cu numărul 3. Formați codul primit în mesaj și deschideți cutia. Înăuntru găsiți cheia, împreună cu telecomanda porții.
 
 pas2-titlu: Poarta
 pas2-text: Opriți mașina în fața senzorilor și apăsați butonul A de pe telecomandă. Poarta se deschide spre exterior.

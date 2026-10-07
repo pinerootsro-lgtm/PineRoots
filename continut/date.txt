@@ -8,9 +8,7 @@ check-in-nota: Altă oră? Ne înțelegem.
 check-out: 12:00
 
 # CODUL CUTIEI NU SE SCRIE AICI: tot ce e în acest folder e public pe GitHub.
-# Codul merge la finalul linkului pe care îl trimiți oaspeților:
-#   https://pinerootsro-lgtm.github.io/PineRoots/#cod=5554
-# Când schimbi codul la cutie, schimbi doar cifrele din link.
+# Codul îl trimiți oaspeților în mesaj. Pe pagină scrie „Îl găsiți în mesajul nostru”.
 cod-cutie:
 
 wifi-retea: PineHills

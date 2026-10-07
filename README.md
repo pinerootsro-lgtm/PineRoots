@@ -2,9 +2,9 @@
 
 Pagina pe care o primesc oaspeții înainte de sosire: drumul, cutia cu cifru, poarta, cheia casei, Wi-Fi, regulile casei și recomandări din zonă.
 
-**Link pentru oaspeți:** https://pinerootsro-lgtm.github.io/PineRoots/#cod=5554
+**Link pentru oaspeți:** https://pinerootsro-lgtm.github.io/PineRoots/
 
-Numărul de după `#cod=` este codul cutiei. Nu e scris nicăieri în fișiere, pentru că tot ce e aici e public. Când schimbi codul la cutie, schimbi doar cifrele din link.
+Codul cutiei nu e scris nicăieri în fișiere, pentru că tot ce e aici e public. Îl trimiți oaspeților în mesaj, iar pagina le spune să-l caute acolo.
 
 ## Cum schimbi conținutul
 
