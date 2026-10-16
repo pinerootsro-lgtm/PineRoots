@@ -1,0 +1,989 @@
+<!doctype html><html lang="ro"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style></head><body><title>PineRoots Studio</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+/* Layout: atelier — previzualizarea fixă în stânga, pașii de lucru în dreapta; pe telefon, stivuite */
+:root{
+  --bg:#F3F0EA; --surface:#FBFAF7; --line:#DCD5C9; --ink:#2A2622; --muted:#6F665C;
+  --copper:#93603F; --copper-soft:#E9DCCD; --sage:#6F7F66; --focus:#93603F;
+  --stage:#E7E2D9;
+  --serif:"Cormorant Garamond", Garamond, Georgia, serif;
+  --sans:"Jost", "Helvetica Neue", Arial, sans-serif;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#191714; --surface:#221F1B; --line:#3A352F; --ink:#EEE8DF; --muted:#A79D90;
+  --copper:#C99872; --copper-soft:#3A2D23; --sage:#9DAE92; --focus:#C99872; --stage:#12100E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#191714; --surface:#221F1B; --line:#3A352F; --ink:#EEE8DF; --muted:#A79D90;
+  --copper:#C99872; --copper-soft:#3A2D23; --sage:#9DAE92; --focus:#C99872; --stage:#12100E; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;padding-inline:16px;padding-block:0 40px}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.top{max-width:1320px;margin:0 auto;display:flex;align-items:center;gap:14px;padding-block:18px;border-bottom:1px solid var(--line)}
+.top canvas{width:38px;height:38px}
+.top h1{font-family:var(--serif);font-weight:500;font-size:1.7rem;margin:0;letter-spacing:.01em}
+.top p{margin:0;color:var(--muted);font-size:.85rem}
+.top .grow{flex:1;min-width:0}
+.layout{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;padding-top:22px}
+@media (max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+.stage{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);align-self:start;display:flex;flex-direction:column;gap:14px;min-width:0}
+@media (max-width:900px){.stage{position:static}}
+.frame{background:var(--stage);border-radius:var(--r);padding:22px;display:flex;justify-content:center;align-items:center;min-height:300px;position:relative}
+.frame.drag{outline:2px dashed var(--copper);outline-offset:-10px}
+#preview{max-width:100%;max-height:72vh;width:auto;height:auto;box-shadow:0 12px 40px rgba(0,0,0,.18);cursor:grab;touch-action:none;display:block}
+#preview:active{cursor:grabbing}
+.hint{font-size:.78rem;color:var(--muted);text-align:center}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.thumbs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.thumb{position:relative;flex:0 0 auto;border:2px solid transparent;border-radius:6px;padding:0;background:none;cursor:pointer}
+.thumb canvas{display:block;width:64px;height:auto;border-radius:4px}
+.thumb[aria-current="true"]{border-color:var(--copper)}
+.thumb .x{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;border:none;background:var(--ink);color:var(--bg);font-size:12px;line-height:20px;cursor:pointer}
+.thumb .tag{position:absolute;left:3px;bottom:3px;font-size:9px;background:rgba(0,0,0,.55);color:#fff;padding:0 4px;border-radius:3px;letter-spacing:.04em}
+.btn{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:999px;cursor:pointer;font-size:.88rem;white-space:nowrap}
+.btn:hover{border-color:var(--copper)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.primary:hover{background:var(--copper);border-color:var(--copper)}
+.btn[aria-pressed="true"]{background:var(--copper-soft);border-color:var(--copper);color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.seg button{border:none;background:none;padding:7px 13px;cursor:pointer;font-size:.85rem}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.panel{display:flex;flex-direction:column;gap:14px;min-width:0}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.step > h2{font-family:var(--serif);font-weight:500;font-size:1.3rem;margin:0 0 12px;display:flex;gap:10px;align-items:baseline}
+.step > h2 span{font-family:var(--sans);font-size:.72rem;color:var(--copper);letter-spacing:.14em;font-weight:500}
+.drop{border:1.5px dashed var(--line);border-radius:var(--r);padding:18px;text-align:center;cursor:pointer;color:var(--muted)}
+.drop{position:relative}
+.drop input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
+.drop:focus-within{outline:2px solid var(--focus);outline-offset:2px}
+.drop:hover,.drop.drag{border-color:var(--copper);color:var(--ink)}
+.drop strong{color:var(--ink);font-weight:500}
+.examples{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.ex{border:1px solid var(--line);background:none;border-radius:8px;padding:6px;cursor:pointer;text-align:left}
+.ex:hover{border-color:var(--copper)}
+.ex canvas{width:100%;height:auto;display:block;border-radius:4px}
+.ex small{display:block;font-size:.72rem;color:var(--muted);margin-top:4px;line-height:1.3}
+.styles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:480px){.styles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.chip{border:1px solid var(--line);background:none;border-radius:8px;padding:10px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:6px}
+.chip[aria-pressed="true"]{border-color:var(--copper);background:var(--copper-soft)}
+.chip b{font-weight:500;font-size:.9rem}
+.dots{display:flex;gap:4px}.dots i{width:14px;height:14px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.08)}
+details{margin-top:12px}
+summary{cursor:pointer;font-size:.88rem;color:var(--muted)}
+.sliders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;margin-top:10px}
+@media (max-width:480px){.sliders{grid-template-columns:minmax(0,1fr)}}
+.sl label{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted)}
+.sl output{font-variant-numeric:tabular-nums;color:var(--ink)}
+input[type=range]{width:100%;accent-color:var(--copper)}
+.tpls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:480px){.tpls{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px}
+@media (max-width:560px){.fields{grid-template-columns:minmax(0,1fr)}}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f.wide{grid-column:1/-1}
+.f label{font-size:.78rem;color:var(--muted);letter-spacing:.02em}
+.f input[type=text],.f select,textarea{border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:8px 10px;width:100%}
+.checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;margin-top:4px}
+@media (max-width:480px){.checks{grid-template-columns:minmax(0,1fr)}}
+.checks label,.inline{display:flex;gap:8px;align-items:center;font-size:.88rem}
+input[type=checkbox]{accent-color:var(--copper);width:16px;height:16px}
+textarea{min-height:260px;resize:vertical;line-height:1.55;font-size:.9rem}
+.note{font-size:.8rem;color:var(--muted);margin:8px 0 0}
+.presets{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.preset{display:flex;gap:8px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.preset span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sw{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 11px 5px 6px;cursor:pointer;font-size:.8rem}
+.sw i{width:18px;height:18px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.15)}
+.sw[aria-pressed="true"]{border-color:var(--copper);background:var(--copper-soft)}
+.hist{display:flex;gap:6px}
+.hist .btn:disabled{opacity:.4;cursor:default}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:.88rem;z-index:10;max-width:calc(100% - 32px)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top">
+  <canvas id="mark" width="76" height="76" aria-hidden="true"></canvas>
+  <div class="grow">
+    <h1>PineRoots Studio</h1>
+    <p>Postări Instagram pentru cabana din Mărișel · poză → stil → text → export</p>
+  </div>
+  <div class="hist">
+    <button class="btn" type="button" id="undo" title="Anulează (Ctrl+Z)" disabled>↶ Anulează</button>
+    <button class="btn" type="button" id="redo" title="Refă (Ctrl+Y)" disabled>↷ Refă</button>
+  </div>
+</header>
+
+<main class="layout">
+  <section class="stage" aria-label="Previzualizare">
+    <div class="frame" id="frame">
+      <canvas id="preview" aria-label="Previzualizarea postării"></canvas>
+    </div>
+    <p class="hint">Click pe text, logo sau bandă ca să le muți și redimensionezi. Click pe poză (în afara elementelor) și trage ca să muți încadrarea.</p>
+    <div class="row" style="justify-content:space-between">
+      <div class="seg" id="formatSeg" role="group" aria-label="Format">
+        <button type="button" data-f="45">Feed 4:5</button>
+        <button type="button" data-f="11">Pătrat 1:1</button>
+        <button type="button" data-f="916">Story 9:16</button>
+      </div>
+      <div class="sl" style="min-width:160px;flex:1;max-width:240px">
+        <label for="zoom">Zoom <output id="zoomOut">1.00×</output></label>
+        <input type="range" id="zoom" min="1" max="2.5" step="0.01" value="1">
+      </div>
+    </div>
+    <div class="thumbs" id="thumbs" aria-label="Pozele încărcate"></div>
+    <div class="row">
+      <button class="btn primary" type="button" id="dlJpg">Descarcă JPG</button>
+      <button class="btn" type="button" id="dlPng">Descarcă PNG</button>
+      <button class="btn" type="button" id="dlZip">Toate pozele (ZIP)</button>
+      <button class="btn" type="button" id="dlAll" hidden>Salvează toate în Galerie</button>
+      <button class="btn primary" type="button" id="shareIg" hidden>Distribuie în Instagram</button>
+      <button class="btn" type="button" id="shareAny" hidden>Distribuie în altă aplicație</button>
+    </div>
+  </section>
+
+  <div class="panel">
+    <section class="step">
+      <h2><span>PAS 1</span> Poze</h2>
+      <div class="drop" id="drop">
+        <strong>Alege poze</strong> sau trage-le aici<br>
+        <small>JPG, PNG, WEBP · mai multe deodată pentru carusel · poți și lipi o poză cu Ctrl+V</small>
+        <input type="file" id="file" accept="image/*" multiple aria-label="Alege poze">
+      </div>
+      <p class="note" style="margin-top:14px">Pornește de la un exemplu (pozele demo sunt desenate, înlocuiește-le cu ale tale):</p>
+      <div class="examples" id="examples"></div>
+    </section>
+
+    <section class="step">
+      <h2><span>PAS 2</span> Stil foto</h2>
+      <div class="styles" id="styles"></div>
+      <details>
+        <summary>Ajustări fine</summary>
+        <div class="sliders" id="sliders"></div>
+        <button class="btn" type="button" id="resetAdj" style="margin-top:10px">Revino la presetare</button>
+      </details>
+    </section>
+
+    <section class="step">
+      <h2><span>PAS 3</span> Template</h2>
+      <div class="tpls" id="tpls"></div>
+      <p class="note" id="tplNote"></p>
+      <h3 style="font-family:var(--serif);font-weight:500;font-size:1.1rem;margin:16px 0 6px">Elementele templateului</h3>
+      <p class="note" style="margin:0 0 10px">Click pe un element în previzualizare (sau alege-l mai jos), apoi trage-l ca să-l muți. Pentru mărime, trage de pătratul din colț, folosește rotița mouse-ului sau sliderul. Săgețile mută fin (Shift = pas mare).</p>
+      <div class="row" id="elList"></div>
+      <div id="elCtl" hidden style="margin-top:12px">
+        <div class="sl" style="max-width:360px"><label for="elSize">Mărime element <output id="elSizeOut">100%</output></label><input type="range" id="elSize" min="30" max="300" value="100"></div>
+        <div class="f" style="margin-top:10px"><label id="elColorLab">Culoare</label><div class="row" id="elColors" role="group" aria-labelledby="elColorLab"></div></div>
+        <div class="f" id="elFontWrap" style="margin-top:10px;max-width:360px"><label for="elFont">Font</label><select id="elFont"></select></div>
+        <p class="note" id="elAutoNote">„Automat" alege text închis pe zone luminoase ale pozei și text deschis pe zone întunecate. Se recalculează când muți elementul.</p>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" type="button" id="elHide">Ascunde</button>
+          <button class="btn" type="button" id="elReset">Resetează elementul</button>
+          <button class="btn" type="button" id="elResetAll">Resetează tot layoutul</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="step">
+      <h2><span>PAS 4</span> Text pe imagine</h2>
+      <div class="fields">
+        <div class="f wide"><label for="title">Titlu</label><input type="text" id="title" data-k="title"></div>
+        <div class="f wide"><label for="subtitle">Subtitlu</label><input type="text" id="subtitle" data-k="subtitle"></div>
+        <div class="f"><label for="offer">Ofertă / preț</label><input type="text" id="offer" data-k="offer"></div>
+        <div class="f"><label for="period">Perioada</label><input type="text" id="period" data-k="period"></div>
+        <div class="f"><label for="cta">Îndemn (CTA)</label><input type="text" id="cta" data-k="cta"></div>
+        <div class="f"><label for="loc">Nume locație</label><input type="text" id="loc" data-k="loc"></div>
+        <div class="f wide"><label for="locDetail">Detaliu locație (altitudine, distanță)</label><input type="text" id="locDetail" data-k="locDetail"></div>
+        <div class="f wide"><label for="quote" id="quoteLab">Citat pentru poza selectată</label><input type="text" id="quote">
+          <div class="row" style="margin-top:6px"><label class="inline"><input type="checkbox" id="showQuote"> Arată citatul pe imagine în orice template</label>
+          <button class="btn" type="button" id="quoteAll">Același citat pe toate pozele</button></div>
+          <p class="note" style="margin:4px 0 0">Fiecare poză își păstrează citatul ei. Lasă câmpul gol ca poza să nu aibă citat.</p></div>
+        <div class="f wide"><label>Facilități afișate</label><div class="checks" id="facs"></div>
+          <div class="row" style="margin-top:8px"><label class="inline"><input type="checkbox" id="showFacs"> Arată facilitățile pe imagine în orice template</label>
+          <select id="facsMode" aria-label="Mod afișare facilități" style="border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:6px 10px"><option value="row">Rând cu iconițe și text</option><option value="icons">Doar iconițe</option><option value="list">Listă verticală</option></select></div></div>
+        <div class="f wide"><label class="inline"><input type="checkbox" id="boss"> Postare cu Boss (ștampilă pe imagine + mențiune în text)</label></div>
+      </div>
+    </section>
+
+    <section class="step">
+      <h2><span>PAS 5</span> Logo și brand</h2>
+      <div class="fields">
+        <div class="f"><label for="logoColor">Culoare logo</label>
+          <select id="logoColor"><option value="auto">Automat (după fundal)</option><option value="copper">Cupru</option><option value="white">Alb</option><option value="char">Cărbune</option><option value="custom">Fișierul meu (PNG)</option></select></div>
+        <div class="f"><label for="logoPos">Poziție</label>
+          <select id="logoPos"><option value="tr">Sus dreapta</option><option value="tl">Sus stânga</option><option value="tc">Sus centru</option><option value="bl">Jos stânga</option><option value="br">Jos dreapta</option><option value="none">Fără logo</option></select></div>
+        <div class="f"><div class="sl"><label for="logoSize">Mărime <output id="logoSizeOut"></output></label><input type="range" id="logoSize" min="60" max="300" value="130"></div></div>
+        <div class="f"><div class="sl"><label for="logoOp">Opacitate <output id="logoOpOut"></output></label><input type="range" id="logoOp" min="20" max="100" value="92"></div></div>
+        <div class="f"><label class="inline"><input type="checkbox" id="logoName" checked> Numele „Pine Roots" sub simbol</label></div>
+        <div class="f"><label class="inline"><input type="checkbox" id="footer" checked> Handle și site pe imagine</label></div>
+        <div class="f"><label for="bfLogo">Font nume logo</label><select id="bfLogo" data-bf="logo"></select></div>
+        <div class="f"><label for="bfHandle">Font handle Instagram</label><select id="bfHandle" data-bf="handle"></select></div>
+        <div class="f"><label for="bfSite">Font site</label><select id="bfSite" data-bf="site"></select></div>
+        <div class="f"><label for="handle">Handle Instagram</label><input type="text" id="handle" data-k="handle"></div>
+        <div class="f"><label for="site">Site</label><input type="text" id="site" data-k="site"></div>
+        <div class="f wide" id="logoUpWrap" hidden><label for="logoFile">Încarcă logo PNG transparent</label><input type="file" id="logoFile" accept="image/png,image/svg+xml,image/webp"></div>
+      </div>
+      <p class="note">Simbolul PineRoots e redesenat vectorial, deci rămâne clar la orice mărime. Verifică handle-ul și adresa site-ului.</p>
+    </section>
+
+    <section class="step">
+      <h2><span>PAS 6</span> Descrierea postării</h2>
+      <div class="row" style="justify-content:space-between">
+        <div class="seg" id="toneSeg" role="group" aria-label="Ton">
+          <button type="button" data-t="calm">Calm / poetic</button>
+          <button type="button" data-t="direct">Direct / ofertă</button>
+          <button type="button" data-t="family">Familie</button>
+        </div>
+        <div class="seg" id="langSeg" role="group" aria-label="Limbă">
+          <button type="button" data-l="ro">RO</button>
+          <button type="button" data-l="en">EN</button>
+          <button type="button" data-l="both">RO + EN</button>
+        </div>
+      </div>
+      <textarea id="caption" aria-label="Descrierea postării" style="margin-top:12px"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" type="button" id="copy">Copiază textul</button>
+        <button class="btn" type="button" id="regen">Generează din nou</button>
+        <button class="btn" type="button" id="ai" hidden>Rescrie cu AI</button>
+      </div>
+      <p class="note" id="capNote">Textul se actualizează când schimbi stilul, câmpurile sau tonul. Modificările tale manuale rămân până apeși „Generează din nou".</p>
+    </section>
+
+    <section class="step">
+      <h2><span>PAS 7</span> Preseturile mele</h2>
+      <div class="row">
+        <input type="text" id="presetName" placeholder="ex. Ofertă iarnă" aria-label="Nume preset" style="flex:1;min-width:140px;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:8px 14px">
+        <button class="btn" type="button" id="savePreset">Salvează stilul curent</button>
+      </div>
+      <div class="presets" id="presets"></div>
+      <p class="note">Se salvează stilul, ajustările, templateul, formatul și setările de logo, doar în acest browser.</p>
+    </section>
+  </div>
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script src="jszip.min.js"></script>
+<script>
+"use strict";
+/* ---------- Brand ---------- */
+const B={paper:'#EFE8DC',paper2:'#E6DCCB',bej:'#D8C8AE',copper:'#93603F',copperL:'#C9A27E',sage:'#7F8F76',char:'#2A2622',white:'#FAF6EE'};
+const SERIF='"Cormorant Garamond", Garamond, Georgia, serif';
+const SANS='Jost, "Helvetica Neue", Arial, sans-serif';
+
+const STYLES={
+  natural:{name:'Natural',adj:{b:0,c:0,s:0,w:0,f:0,g:0,v:0},haze:0,accent:B.copper,font:{serif:true,w:400,it:false,up:false},dots:['#FFFFFF','#C9A27E','#2A2622']},
+  wabi:{name:'Wabi-sabi',adj:{b:2,c:-5,s:-12,w:5,f:8,g:3,v:5},haze:0,accent:B.copper,font:{serif:true,w:300,it:true,up:false},dots:['#D8C8AE','#A9876B','#8E9A84']},
+  munte:{name:'Munte',adj:{b:0,c:6,s:0,w:-2,f:0,g:0,v:8},haze:5,accent:B.sage,font:{serif:true,w:500,it:false,up:true},dots:['#3E5A4A','#6C8597','#D9DEE0']},
+  minimal:{name:'Minimalism',adj:{b:5,c:-6,s:-14,w:0,f:5,g:0,v:0},haze:0,accent:B.char,font:{serif:false,w:300,it:false,up:false},dots:['#F4F1EC','#C9C3BA','#2A2622']},
+  travel:{name:'Travel',adj:{b:2,c:3,s:6,w:5,f:0,g:0,v:5},haze:0,accent:B.copper,font:{serif:false,w:500,it:false,up:false},dots:['#E3A867','#5F8A7A','#2F4E66']},
+  iarna:{name:'Iarnă / Ski',adj:{b:4,c:3,s:-6,w:-5,f:0,g:0,v:3},haze:0,accent:B.sage,font:{serif:false,w:300,it:false,up:true},dots:['#FFFFFF','#BFD0DC','#5C7183']},
+  seara:{name:'Seară la cabană',adj:{b:-3,c:4,s:-4,w:8,f:2,g:2,v:12},haze:0,accent:'#C08A5A',font:{serif:true,w:400,it:true,up:false},dots:['#2B201A','#B5713E','#E8B77A']}
+};
+const SLIDERS=[['b','Luminozitate',-50,50],['c','Contrast',-50,50],['w','Căldură',-40,40],['s','Saturație',-100,50],['f','Mat (umbre ridicate)',0,60],['g','Grain',0,50],['v','Vignetă',0,70]];
+const TEMPLATES={
+  liniste:{name:'Liniște',note:'Un citat scurt, centrat. Folosește câmpul „Citat" și „Subtitlu" ca semnătură.'},
+  oferta:{name:'Ofertă',note:'Bandă de hârtie jos cu perioada, titlul, oferta și butonul de rezervare.'},
+  facilitati:{name:'Facilități',note:'Lista facilităților bifate, cu iconițe, peste o umbră discretă.'},
+  rama:{name:'Ramă wabi-sabi',note:'Poza în chenar cu margini neregulate pe hârtie, titlul dedesubt.'},
+  locatie:{name:'Locație',note:'Numele locului mare, cu detaliul de altitudine și distanță.'},
+  carusel:{name:'Carusel',note:'Prima poză = copertă, cele din mijloc curate cu numerotare, ultima = rezervare. Încarcă 3–10 poze.'},
+  colt:{name:'Etichetă colț',note:'Un card mic de hârtie în colț, cu subtitlu, titlu și ofertă. Poza rămâne aproape liberă.'},
+  split:{name:'Jumătate',note:'Poza sus, text pe hârtie jos: perioadă, titlu, subtitlu și buton.'},
+  polaroid:{name:'Polaroid',note:'Poza ca o fotografie polaroid, cu titlul scris de mână dedesubt.'},
+  coperta:{name:'Copertă revistă',note:'Titlu mare centrat sus, cu subtitlul ca rubrică; perioada și oferta jos.'},
+  pret:{name:'Insignă ofertă',note:'Insignă rotundă cu perioada și oferta, titlul mare în stânga jos.'},
+  card:{name:'Card rezervare',note:'Card alb plutitor jos, cu titlu, până la 4 facilități cu iconițe și butonul de rezervare.'},
+  linie:{name:'O singură linie',note:'Doar o linie de titlu și un detaliu, discret, jos. Cel mai curat template.'},
+  recenzie:{name:'Recenzie oaspeți',note:'Citatul ca recenzie cu 5 stele; numele oaspetelui în „Subtitlu". Folosește doar recenzii reale, cu acordul oaspetelui.'},
+  cifre:{name:'Facilități în cifre',note:'Titlu sus și 3 cifre mari jos (camere, persoane, distanța până la pârtie), după facilitățile bifate.'}
+};
+const FAC=[
+  {id:'sauna',ro:'Saună',en:'Sauna'},
+  {id:'ciubar',ro:'Ciubăr cu apă caldă',en:'Wood-fired hot tub'},
+  {id:'semineu',ro:'Șemineu',en:'Fireplace'},
+  {id:'camere',ro:'4 camere cu baie proprie',en:'4 ensuite bedrooms'},
+  {id:'pers',ro:'8–12 persoane',en:'Sleeps 8–12'},
+  {id:'partie',ro:'2 km de pârtie',en:'2 km from the ski slope'},
+  {id:'joaca',ro:'Loc de joacă',en:'Playground'},
+  {id:'gratar',ro:'Zonă de grătar',en:'BBQ area'}
+];
+const FORMATS={'45':[1080,1350],'11':[1080,1080],'916':[1080,1920]};
+
+/* ---------- State ---------- */
+const S={
+  style:'natural', adj:{...STYLES.natural.adj}, template:'oferta', format:'45',
+  fields:{title:'Weekend de toamnă în Apuseni',subtitle:'Cabana întreagă, doar pentru voi',offer:'Cabana întreagă · 8–12 persoane',period:'Octombrie – Noiembrie',cta:'Rezervă direct pe site',loc:'Mărișel',locDetail:'Munții Apuseni · aprox. 1.100 m · 50 km de Cluj',quote:'Aici timpul curge mai încet.',handle:'@pineroots',site:'pineroots.ro'},
+  facs:['sauna','ciubar','semineu','camere','pers','partie'], boss:false,
+  showQuote:false,showFacs:false,facsMode:'row',bfont:{logo:'jostL',handle:'jostL',site:'jostL'},logo:{color:'auto',pos:'tr',size:130,op:92,name:true,img:null,imgData:null}, footer:true,
+  tone:'calm', lang:'ro', images:[], active:0, captionDirty:false, lay:{}, sel:null
+};
+
+/* ---------- Utils ---------- */
+const $=id=>document.getElementById(id);
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function toast(msg){const t=$('toast');t.textContent=msg;t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,2600)}
+function ls(k,v){try{if(v===undefined)return JSON.parse(localStorage.getItem(k)||'null');localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return v===undefined?null:false}}
+function setLS(ctx,px){if('letterSpacing' in ctx)ctx.letterSpacing=px+'px'}
+
+/* ---------- Noise ---------- */
+const NOISE=(()=>{const c=document.createElement('canvas');c.width=c.height=192;const x=c.getContext('2d'),d=x.createImageData(192,192),r=rng(11);for(let i=0;i<d.data.length;i+=4){const v=128+(r()-.5)*190;d.data[i]=d.data[i+1]=d.data[i+2]=v;d.data[i+3]=255}x.putImageData(d,0,0);return c})();
+const PAPERN=(()=>{const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d'),d=x.createImageData(256,256),r=rng(5);for(let i=0;i<d.data.length;i+=4){const v=200+r()*55;d.data[i]=v;d.data[i+1]=v-4;d.data[i+2]=v-12;d.data[i+3]=255}x.putImageData(d,0,0);x.globalAlpha=.06;x.strokeStyle='#5a4630';for(let i=0;i<60;i++){x.beginPath();const y=r()*256;x.moveTo(0,y);x.bezierCurveTo(80,y+r()*6,170,y-r()*6,256,y+r()*4);x.lineWidth=r()*1.2;x.stroke()}return c})();
+
+/* ---------- PineRoots logo (vector) ---------- */
+function logoPaths(ctx){
+  ctx.beginPath();ctx.moveTo(350,62);ctx.lineTo(560,270);ctx.lineTo(350,480);ctx.lineTo(140,270);ctx.closePath();
+  // trunk
+  ctx.moveTo(350,140);ctx.lineTo(350,472);
+  // branches
+  ctx.moveTo(350,142);ctx.quadraticCurveTo(334,186,302,212);
+  ctx.moveTo(350,142);ctx.quadraticCurveTo(366,186,398,212);
+  ctx.moveTo(350,184);ctx.quadraticCurveTo(330,236,295,264);
+  ctx.moveTo(350,184);ctx.quadraticCurveTo(374,228,408,250);
+  ctx.moveTo(350,224);ctx.quadraticCurveTo(326,292,288,324);
+  ctx.moveTo(350,226);ctx.quadraticCurveTo(366,256,388,274);
+  // mountains
+  ctx.moveTo(262,382);ctx.lineTo(350,326);
+  ctx.moveTo(368,314);ctx.lineTo(420,274);ctx.lineTo(492,330);
+  ctx.moveTo(419,277);ctx.lineTo(419,405);
+}
+function logoStroke(ctx,color){
+  if(color==='white')return B.white;
+  if(color==='char')return B.char;
+  const g=ctx.createLinearGradient(140,0,560,0);
+  g.addColorStop(0,'#2C221C');g.addColorStop(.28,'#7E5236');g.addColorStop(.6,'#A8754F');g.addColorStop(1,'#E2C29E');return g;
+}
+// draws symbol whose diamond width = w, top-left at (x,y); returns height
+function drawSymbol(ctx,x,y,w,color){
+  const s=w/420;ctx.save();ctx.translate(x-140*s,y-62*s);ctx.scale(s,s);
+  ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=11;ctx.strokeStyle=logoStroke(ctx,color);
+  logoPaths(ctx);ctx.stroke();ctx.restore();return 418*s;
+}
+
+/* ---------- Demo photos (drawn) ---------- */
+function ridge(r,w,base,amp,rough){const pts=[];let n=64;let y=base;for(let i=0;i<=n;i++){y+=(r()-.5)*amp*rough;y=y*.82+base*.18;pts.push([i/n*w,y])}return pts}
+function fillRidge(x,pts,w,h,style){x.beginPath();x.moveTo(0,h);pts.forEach(p=>x.lineTo(p[0],p[1]));x.lineTo(w,h);x.closePath();x.fillStyle=style;x.fill()}
+function pine(x,cx,by,hh,col){x.fillStyle=col;x.beginPath();x.moveTo(cx,by-hh);for(let t=0;t<3;t++){const yy=by-hh+hh*(t+1)/3.2;const ww=hh*(.16+t*.08);x.lineTo(cx+ww,yy);x.lineTo(cx+ww*.35,yy-hh*.04)}x.lineTo(cx+hh*.06,by);x.lineTo(cx-hh*.06,by);for(let t=2;t>=0;t--){const yy=by-hh+hh*(t+1)/3.2;const ww=hh*(.16+t*.08);x.lineTo(cx-ww*.35,yy-hh*.04);x.lineTo(cx-ww,yy)}x.closePath();x.fill()}
+function demo(kind){
+  const w=1400,h=1750,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');const r=rng(kind==='mist'?3:kind==='snow'?8:21);
+  if(kind==='mist'){
+    let g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#C9CFC8');g.addColorStop(.5,'#E4DED0');g.addColorStop(1,'#B8B39E');x.fillStyle=g;x.fillRect(0,0,w,h);
+    x.fillStyle='rgba(255,246,225,.55)';x.beginPath();x.arc(w*.7,h*.28,90,0,7);x.fill();
+    const cols=['#A9B2AA','#8C9890','#6D7C70','#4E5D50','#34402F'];
+    cols.forEach((col,i)=>{const pts=ridge(r,w,h*(.38+i*.1),180,1.3);fillRidge(x,pts,w,h,col);
+      const fg=x.createLinearGradient(0,h*(.36+i*.1),0,h*(.52+i*.1));fg.addColorStop(0,'rgba(236,232,220,0)');fg.addColorStop(1,'rgba(236,232,220,.55)');x.fillStyle=fg;x.fillRect(0,h*(.34+i*.1),w,h*.2);
+      if(i>=2){for(let k=0;k<40+i*12;k++){const px=r()*w;const idx=Math.min(64,Math.round(px/w*64));pine(x,px,pts[idx][1]+30+r()*40,60+i*28+r()*50,col)}}});
+    x.fillStyle='#25301F';x.fillRect(0,h*.93,w,h*.07);
+  }else if(kind==='snow'){
+    let g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#9FB8CC');g.addColorStop(.55,'#E5ECF0');g.addColorStop(1,'#F6F8F9');x.fillStyle=g;x.fillRect(0,0,w,h);
+    const cols=['#D7E1E8','#C2D0DA','#EEF2F5','#FAFBFC'];
+    cols.forEach((col,i)=>{const pts=ridge(r,w,h*(.4+i*.12),220,1.2);fillRidge(x,pts,w,h,col);
+      if(i<3){for(let k=0;k<55;k++){const px=r()*w;const idx=Math.min(64,Math.round(px/w*64));pine(x,px,pts[idx][1]+40+r()*80,50+i*40+r()*40,i===2?'#3B4D45':'#6E8079')}}});
+    x.strokeStyle='rgba(120,140,155,.35)';x.lineWidth=3;x.beginPath();x.moveTo(w*.15,h);x.bezierCurveTo(w*.4,h*.8,w*.55,h*.75,w*.62,h*.6);x.stroke();
+  }else{
+    let g=x.createLinearGradient(0,0,0,h);g.addColorStop(0,'#141821');g.addColorStop(.45,'#3A3240');g.addColorStop(.62,'#8A5A44');g.addColorStop(1,'#1C1714');x.fillStyle=g;x.fillRect(0,0,w,h);
+    for(let i=0;i<140;i++){x.fillStyle='rgba(255,240,220,'+(r()*.7)+')';x.fillRect(r()*w,r()*h*.42,2,2)}
+    fillRidge(x,ridge(r,w,h*.5,160,1.2),w,h,'#2A2430');fillRidge(x,ridge(r,w,h*.6,120,1),w,h,'#1D1A1E');
+    for(let k=0;k<50;k++){const px=r()*w;pine(x,px,h*.66+r()*40,120+r()*120,'#121012')}
+    // cabin
+    const cx=w*.48,cy=h*.8;x.fillStyle='#1A1512';x.beginPath();x.moveTo(cx-330,cy);x.lineTo(cx,cy-420);x.lineTo(cx+330,cy);x.closePath();x.fill();
+    x.fillStyle='#24201B';x.fillRect(cx-380,cy,760,210);
+    const glow=x.createRadialGradient(cx,cy-60,10,cx,cy-60,520);glow.addColorStop(0,'rgba(255,170,90,.55)');glow.addColorStop(1,'rgba(255,170,90,0)');x.fillStyle=glow;x.fillRect(0,0,w,h);
+    x.fillStyle='#FFB86B';[[cx-60,cy-210,120,150],[cx-250,cy+50,110,90],[cx+140,cy+50,110,90]].forEach(a=>x.fillRect(...a));
+    x.fillStyle='#FFD9A0';x.fillRect(cx-4,cy-210,8,150);x.fillRect(cx-60,cy-140,120,6);
+    x.fillStyle='#0F0C0A';x.fillRect(0,cy+210,w,h);
+    // hot tub glow
+    x.fillStyle='rgba(255,180,110,.25)';x.beginPath();x.ellipse(w*.82,cy+300,150,40,0,0,7);x.fill();
+    x.strokeStyle='rgba(255,210,170,.18)';x.lineWidth=5;for(let i=0;i<4;i++){x.beginPath();x.moveTo(w*.78+i*30,cy+260);x.bezierCurveTo(w*.76+i*30,cy+200,w*.8+i*30,cy+160,w*.78+i*30,cy+110);x.stroke()}
+  }
+  return c;
+}
+
+/* ---------- Smart focus ---------- */
+function smartFocus(img){
+  const n=48,c=document.createElement('canvas');c.width=c.height=n;const x=c.getContext('2d');x.drawImage(img,0,0,n,n);
+  const d=x.getImageData(0,0,n,n).data;const g=new Float32Array(n*n);for(let i=0;i<n*n;i++)g[i]=d[i*4]*.3+d[i*4+1]*.59+d[i*4+2]*.11;
+  let sx=0,sy=0,sw=0;for(let y=1;y<n-1;y++)for(let xx=1;xx<n-1;xx++){const i=y*n+xx;const m=Math.abs(g[i+1]-g[i-1])+Math.abs(g[i+n]-g[i-n]);sx+=m*xx;sy+=m*y;sw+=m}
+  if(!sw)return{cx:.5,cy:.5};return{cx:.5+((sx/sw)/n-.5)*.6,cy:.5+((sy/sw)/n-.5)*.6};
+}
+
+/* ---------- Photo processing ---------- */
+function adjust(ctx,w,h,a){
+  if(!a.b&&!a.c&&!a.s&&!a.w&&!a.f)return;
+  const im=ctx.getImageData(0,0,w,h),d=im.data;const Bm=1+a.b/100,C=1+a.c/100,Sm=1+a.s/100,W=a.w*.9;
+  const lift=a.f*1.4,roll=a.f*.35;const L1=new Float32Array(256),LF=new Float32Array(256);
+  for(let i=0;i<256;i++){L1[i]=(i*Bm-128)*C+128;LF[i]=lift+i*(255-lift-roll)/255}
+  for(let i=0;i<d.length;i+=4){
+    let r=L1[d[i]],g=L1[d[i+1]],b=L1[d[i+2]];const l=r*.299+g*.587+b*.114;
+    r=l+(r-l)*Sm+W;g=l+(g-l)*Sm+W*.25;b=l+(b-l)*Sm-W;
+    r=r<0?0:r>255?255:r;g=g<0?0:g>255?255:g;b=b<0?0:b>255?255:b;
+    d[i]=LF[r|0];d[i+1]=LF[g|0];d[i+2]=LF[b|0];
+  }
+  ctx.putImageData(im,0,0);
+}
+function photoCanvas(entry,pw,ph,cfg,k){
+  const c=document.createElement('canvas');c.width=pw;c.height=ph;const x=c.getContext('2d');
+  const img=entry.img,iw=img.width,ih=img.height;const sc=Math.max(pw/iw,ph/ih)*(entry.zoom||1);const dw=iw*sc,dh=ih*sc;
+  let dx=pw/2-entry.cx*dw,dy=ph/2-entry.cy*dh;dx=Math.min(0,Math.max(pw-dw,dx));dy=Math.min(0,Math.max(ph-dh,dy));
+  x.drawImage(img,dx,dy,dw,dh);entry._lay={dw,dh};
+  adjust(x,pw,ph,cfg.adj);
+  const st=STYLES[cfg.style];
+  if(st.haze){const g=x.createLinearGradient(0,0,0,ph*.6);g.addColorStop(0,'rgba(240,242,240,'+st.haze/100+')');g.addColorStop(1,'rgba(240,242,240,0)');x.fillStyle=g;x.fillRect(0,0,pw,ph)}
+  if(cfg.adj.g){x.save();x.globalCompositeOperation='overlay';x.globalAlpha=cfg.adj.g/100*.9;const s=Math.max(.6,k*1.6);x.scale(s,s);x.fillStyle=x.createPattern(NOISE,'repeat');x.fillRect(0,0,pw/s+1,ph/s+1);x.restore()}
+  if(cfg.adj.v){const g=x.createRadialGradient(pw/2,ph/2,Math.min(pw,ph)*.35,pw/2,ph/2,Math.hypot(pw,ph)*.6);g.addColorStop(0,'rgba(15,12,10,0)');g.addColorStop(1,'rgba(15,12,10,'+cfg.adj.v/100+')');x.fillStyle=g;x.fillRect(0,0,pw,ph)}
+  return c;
+}
+
+/* ---------- Text helpers ---------- */
+function HF(st,size,k){const f=st.font;return f.serif?`${f.it?'italic ':''}${f.w} ${size*k}px ${SERIF}`:`${f.w} ${size*k}px ${SANS}`}
+function SF(w,size,k){return `${w} ${size*k}px ${SANS}`}
+function headText(st,t){return st.font.up?t.toUpperCase():t}
+function headSpacing(ctx,st,k,size){setLS(ctx,st.font.up?size*.08*k:0)}
+function wrap(ctx,text,maxW,maxLines){
+  const out=[];String(text||'').split('\n').forEach(par=>{let line='';par.split(/\s+/).filter(Boolean).forEach(wd=>{const t=line?line+' '+wd:wd;if(ctx.measureText(t).width>maxW&&line){out.push(line);line=wd}else line=t});if(line)out.push(line)});
+  if(maxLines&&out.length>maxLines){out.length=maxLines;out[maxLines-1]=out[maxLines-1].replace(/\s*\S*$/,'')+'…'}return out;
+}
+function lines(ctx,ls,x,y,lh){ls.forEach((l,i)=>ctx.fillText(l,x,y+i*lh))}
+function lum(ctx,x,y,w,h){if(ctx.getTransform){const m=ctx.getTransform(),p1=m.transformPoint({x,y}),p2=m.transformPoint({x:x+w,y:y+h});x=Math.min(p1.x,p2.x);y=Math.min(p1.y,p2.y);w=Math.abs(p2.x-p1.x);h=Math.abs(p2.y-p1.y)}
+  x=Math.max(0,x|0);y=Math.max(0,y|0);w=Math.max(1,Math.min(ctx.canvas.width-x,w|0));h=Math.max(1,Math.min(ctx.canvas.height-y,h|0));
+  const d=ctx.getImageData(x,y,w,h).data;let s=0,n=0;for(let i=0;i<d.length;i+=64){s+=d[i]*.299+d[i+1]*.587+d[i+2]*.114;n++}return n?s/n/255:0}
+function scrim(ctx,x,y,w,h,k,rgb,a){if(!(a>0))return;ctx.save();ctx.fillStyle=`rgba(${rgb},${a})`;ctx.shadowColor=`rgba(${rgb},${a})`;ctx.shadowBlur=70*k;
+  ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,w,h,40*k):ctx.rect(x,y,w,h);ctx.fill();ctx.restore()}
+function shadowOn(ctx,k){ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=14*k;ctx.shadowOffsetY=2*k}
+function shadowOff(ctx){ctx.shadowColor='transparent';ctx.shadowBlur=0;ctx.shadowOffsetY=0}
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h)}
+function paperFill(ctx,x,y,w,h,k,col){ctx.save();ctx.fillStyle=col||B.paper;ctx.fillRect(x,y,w,h);ctx.globalCompositeOperation='multiply';ctx.globalAlpha=.2;const p=ctx.createPattern(PAPERN,'repeat');ctx.fillStyle=p;ctx.fillRect(x,y,w,h);ctx.restore()}
+
+/* ---------- Icons ---------- */
+function icon(ctx,id,x,y,s,col){
+  ctx.save();ctx.translate(x,y);ctx.scale(s/40,s/40);ctx.strokeStyle=col;ctx.fillStyle=col;ctx.lineWidth=2.4;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+  if(id==='sauna'){for(let i=0;i<3;i++){const xx=11+i*9;ctx.moveTo(xx,30);ctx.bezierCurveTo(xx-5,24,xx+5,18,xx,10)}ctx.moveTo(5,35);ctx.lineTo(35,35)}
+  else if(id==='ciubar'){ctx.moveTo(5,20);ctx.lineTo(35,20);ctx.lineTo(32,36);ctx.lineTo(8,36);ctx.closePath();ctx.moveTo(6.5,27);ctx.lineTo(33.5,27);ctx.moveTo(15,15);ctx.bezierCurveTo(12,11,18,8,15,4);ctx.moveTo(25,15);ctx.bezierCurveTo(22,11,28,8,25,4)}
+  else if(id==='semineu'){ctx.moveTo(20,4);ctx.bezierCurveTo(30,14,32,22,28,30);ctx.bezierCurveTo(25,36,15,36,12,30);ctx.bezierCurveTo(8,22,14,18,16,12);ctx.bezierCurveTo(18,18,22,20,20,4);ctx.moveTo(8,36);ctx.lineTo(32,36)}
+  else if(id==='camere'){ctx.moveTo(5,12);ctx.lineTo(5,34);ctx.moveTo(5,24);ctx.lineTo(35,24);ctx.lineTo(35,34);ctx.moveTo(5,30);ctx.lineTo(35,30);ctx.moveTo(10,24);ctx.lineTo(10,19);ctx.lineTo(19,19);ctx.lineTo(19,24)}
+  else if(id==='pers'){ctx.arc(14,12,5,0,7);ctx.moveTo(31,13);ctx.arc(26,13,5,0,7);ctx.moveTo(4,34);ctx.bezierCurveTo(4,22,24,22,24,34);ctx.moveTo(22,24);ctx.bezierCurveTo(30,21,36,26,36,34)}
+  else if(id==='partie'){ctx.moveTo(3,35);ctx.lineTo(18,10);ctx.lineTo(26,22);ctx.lineTo(30,17);ctx.lineTo(38,35);ctx.closePath();ctx.moveTo(13,18);ctx.lineTo(16,21);ctx.lineTo(19,17);ctx.lineTo(23,21)}
+  else if(id==='joaca'){ctx.moveTo(6,36);ctx.lineTo(12,6);ctx.lineTo(18,36);ctx.moveTo(22,36);ctx.lineTo(28,6);ctx.lineTo(34,36);ctx.moveTo(10,6);ctx.lineTo(30,6);ctx.moveTo(16,6);ctx.lineTo(16,26);ctx.moveTo(24,6);ctx.lineTo(24,26);ctx.moveTo(14,26);ctx.lineTo(26,26)}
+  else if(id==='gratar'){ctx.moveTo(6,16);ctx.lineTo(34,16);ctx.moveTo(6,16);ctx.bezierCurveTo(6,30,34,30,34,16);ctx.moveTo(13,27);ctx.lineTo(9,37);ctx.moveTo(27,27);ctx.lineTo(31,37);ctx.moveTo(14,11);ctx.lineTo(14,8);ctx.moveTo(20,11);ctx.lineTo(20,6);ctx.moveTo(26,11);ctx.lineTo(26,8)}
+  ctx.stroke();ctx.restore();
+}
+function paw(ctx,cx,cy,s,col){ctx.save();ctx.fillStyle=col;ctx.beginPath();ctx.ellipse(cx,cy+s*.18,s*.28,s*.22,0,0,7);ctx.fill();
+  [[-.32,-.12],[-.12,-.32],[.12,-.32],[.32,-.12]].forEach(p=>{ctx.beginPath();ctx.ellipse(cx+p[0]*s,cy+p[1]*s,s*.1,s*.13,0,0,7);ctx.fill()});ctx.restore()}
+
+/* ---------- Render ---------- */
+function render(cv,W,H,cfg,entry,idx,total,opts){
+  cv.width=W;cv.height=H;const ctx=cv.getContext('2d',{willReadFrequently:true});const k=W/1080;const st=STYLES[cfg.style];const F={...cfg.fields};if(entry&&entry.quote!==undefined)F.quote=entry.quote;
+  const tall=H/W>1.6;const safeT=tall?240*k:0,safeB=tall?280*k:0;const sq=H/W<1.05;const t=cfg.template;
+  let area={x:0,y:0,w:W,h:H},card=null;
+  if(t==='rama')area={x:64*k,y:64*k+safeT*.6,w:W-128*k,h:H*(tall?.6:sq?.6:.66)};
+  else if(t==='split')area={x:0,y:0,w:W,h:H*(tall?.6:sq?.56:.6)};
+  else if(t==='polaroid'){card={x:70*k,y:70*k+safeT*.6,w:W-140*k,h:H-140*k-safeT*.6-safeB*.6-(cfg.footer?40*k:0)};area={x:card.x+34*k,y:card.y+34*k,w:card.w-68*k,h:card.h-68*k-(sq?170:200)*k}}
+  if(!entry){ctx.fillStyle=B.paper;ctx.fillRect(0,0,W,H);return{els:[],boxes:[]}}
+  const pc=photoCanvas(entry,Math.round(area.w),Math.round(area.h),cfg,k);
+  if(t==='rama'){paperFill(ctx,0,0,W,H,k);ctx.save();ctx.shadowColor='rgba(60,40,20,.12)';ctx.shadowBlur=18*k;ctx.fillStyle='#000';ctx.fillRect(area.x,area.y,area.w,area.h);ctx.restore();ctx.drawImage(pc,area.x,area.y)}
+  else if(t==='split'){paperFill(ctx,0,0,W,H,k);ctx.drawImage(pc,0,0)}
+  else if(t==='polaroid'){paperFill(ctx,0,0,W,H,k,B.paper2);ctx.save();softShadow(ctx,k);ctx.fillStyle='#FCFAF6';ctx.fillRect(card.x,card.y,card.w,card.h);ctx.restore();ctx.drawImage(pc,area.x,area.y)}
+  else ctx.drawImage(pc,0,0);
+  const C={ctx,W,H,k,cfg,st,F,idx,total,safeT,safeB,area,card,tall,els:[],boxes:[]};
+  let bossY=H-safeB-200*k;
+  const fn={liniste:tLiniste,oferta:tOferta,facilitati:tFac,rama:tRama,locatie:tLoc,carusel:tCarusel,colt:tColt,split:tSplit,polaroid:tPolaroid,coperta:tCoperta,pret:tPret,card:tCard,linie:tLinie,recenzie:tRecenzie,cifre:tCifre}[t]||tOferta;
+  const ry=fn(C);if(typeof ry==='number')bossY=ry;
+  if(t==='pret')bossY=C.safeT+180*k;
+  if(cfg.boss&&!(t==='carusel'&&total>1&&idx>0&&idx<total-1))bossStamp(C,bossY);
+  overlays(C);
+  drawLogo(C);
+  if(opts&&opts.preview&&cfg.sel){const b=C.boxes.find(b=>b.key===cfg.sel);if(b){ctx.save();ctx.setLineDash([8*k,6*k]);ctx.lineWidth=2*k;ctx.strokeStyle='#fff';ctx.shadowColor='rgba(0,0,0,.7)';ctx.shadowBlur=4*k;
+    ctx.strokeRect(b.x,b.y,b.w,b.h);ctx.setLineDash([]);const hs=24*k;ctx.fillStyle='#fff';ctx.fillRect(b.x+b.w-hs/2,b.y+b.h-hs/2,hs,hs);ctx.shadowColor='transparent';ctx.strokeStyle=B.copper;ctx.lineWidth=2*k;ctx.strokeRect(b.x+b.w-hs/2,b.y+b.h-hs/2,hs,hs);ctx.restore()}}
+  return C;
+}
+const FONTS={
+  stil:{name:'Din stilul ales'},
+  cormL:{name:'Cormorant subțire',fam:SERIF,w:300},
+  corm:{name:'Cormorant',fam:SERIF,w:500},
+  cormI:{name:'Cormorant italic',fam:SERIF,w:400,it:true},
+  play:{name:'Playfair Display',fam:'"Playfair Display", Georgia, serif',w:400},
+  playI:{name:'Playfair italic',fam:'"Playfair Display", Georgia, serif',w:400,it:true},
+  jostL:{name:'Jost subțire',fam:SANS,w:300},
+  jostM:{name:'Jost medium',fam:SANS,w:500},
+  mont:{name:'Montserrat majuscule',fam:'Montserrat, Arial, sans-serif',w:500,up:true},
+  caveat:{name:'Caveat (scris de mână)',fam:'Caveat, "Segoe Script", cursive',w:500,scale:1.3}
+};
+const COLORS={auto:{name:'Automat'},white:{name:'Alb',c:B.white},paper:{name:'Hârtie',c:B.paper},char:{name:'Cărbune',c:B.char},copper:{name:'Cupru',c:B.copper},copperL:{name:'Cupru deschis',c:B.copperL},sage:{name:'Salvie',c:B.sage}};
+function hexLum(h){const n=parseInt(h.slice(1),16);return(((n>>16)&255)*.299+((n>>8)&255)*.587+(n&255)*.114)/255}
+function LK(key,tpl){return ['logo','boss','handle','site'].includes(key)?key:tpl+'.'+key}
+function layGet(cfg,key){return Object.assign({dx:0,dy:0,s:1,hide:false,color:'auto',font:'stil'},(cfg.lay||{})[LK(key,cfg.template)]||{})}
+function mkP(C,key){const L=layGet(C.cfg,key);const st=C.st,k=C.k,ctx=C.ctx;const f=FONTS[L.font]||FONTS.stil;const P={L};
+  if(!f.fam){P.hf=s=>HF(st,s,k);P.sf=(w,s)=>SF(w,s,k);P.ht=t=>headText(st,t);P.hs=s=>headSpacing(ctx,st,k,s)}
+  else{const sc=f.scale||1;P.hf=s=>`${f.it?'italic ':''}${f.w} ${s*k*sc}px ${f.fam}`;P.sf=(w,s)=>`${f.it?'italic ':''}${f.fam===SERIF?Math.max(w,500):w} ${s*k*sc}px ${f.fam}`;P.ht=t=>f.up?t.toUpperCase():t;P.hs=s=>setLS(ctx,f.up?s*.08*k:0)}
+  return P}
+function paint(C,P,r){const{ctx,k}=C;const l=lum(ctx,r.x,r.y,r.w,r.h);P.bgLight=l>.55;const ch=COLORS[P.L.color]||COLORS.auto;
+  P.fg=ch.c||(P.bgLight?B.char:B.white);const fgLight=hexLum(P.fg)>.6;P.sh=fgLight;
+  P.accent=P.L.color==='copper'||P.L.color==='copperL'?(fgLight?B.white:B.char):(P.bgLight?B.copper:B.copperL);
+  if(P.L.color==='auto'&&C.st.accent&&P.bgLight&&C.st.accent!==B.char)P.accent=C.st.accent;
+  P.shOn=()=>{if(P.sh)shadowOn(ctx,k)};
+  // keep text readable when a manual colour fights the photo
+  P.scrim=(x,y,w,h)=>{if(P.L.color==='auto')return;if(fgLight&&l>.5)scrim(ctx,x,y,w,h,k,'28,24,20',Math.min(.42,(l-.3)));else if(!fgLight&&l<.45)scrim(ctx,x,y,w,h,k,'239,232,220',Math.min(.6,(.6-l)))}}
+function el(C,key,label,layout,draw){
+  C.els.push({key,label});const P=mkP(C,key);const L=P.L;const box=layout(P);if(L.hide)return;
+  const{ctx,k}=C;const ax=box[0]+box[2]/2,ay=box[1]+box[3]/2;const cx=ax+L.dx*k,cy=ay+L.dy*k;const w=box[2]*L.s,h=box[3]*L.s;
+  const r={x:cx-w/2,y:cy-h/2,w,h};paint(C,P,r);
+  ctx.save();ctx.translate(cx,cy);ctx.scale(L.s,L.s);ctx.translate(-ax,-ay);draw(P);ctx.restore();shadowOff(ctx);
+  C.boxes.push({key,label,x:r.x,y:r.y,w,h,cx,cy});
+}
+function bfF(cfg,which){return FONTS[(cfg.bfont||{})[which]]||FONTS.jostL}
+function bfFont(cfg,which,size,k){const f=bfF(cfg,which);return `${f.it?'italic ':''}${f.w} ${size*k*(f.scale||1)}px ${f.fam}`}
+function bfCaps(cfg,which){const f=bfF(cfg,which);return f.fam===SANS||!!f.up}
+function bfText(cfg,which,t){return bfCaps(cfg,which)?t.toUpperCase():t}
+function bfSpace(cfg,which,size,k){return bfCaps(cfg,which)?size*.14*k:0}
+function brandW(C,which,txt,size){const{ctx,k,cfg}=C;ctx.font=bfFont(cfg,which,size,k);setLS(ctx,bfSpace(cfg,which,size,k));const w=ctx.measureText(bfText(cfg,which,txt)).width;setLS(ctx,0);return w}
+function brandText(C,which,txt,x,y,align,size){const{ctx,k,cfg}=C;ctx.font=bfFont(cfg,which,size,k);setLS(ctx,bfSpace(cfg,which,size,k));ctx.textAlign=align;ctx.fillText(bfText(cfg,which,txt),x,y);setLS(ctx,0);ctx.textAlign='left'}
+function footer(C){if(!C.cfg.footer)return;const{ctx,W,H,k,F,safeB}=C;const y=H-safeB-54*k;
+  const hw=brandW(C,'handle',F.handle||'',22);
+  el(C,'handle','Handle Instagram',()=>[64*k,y-26*k,Math.max(40*k,hw),36*k],P=>{ctx.fillStyle=P.fg;P.shOn();brandText(C,'handle',F.handle||'',64*k,y,'left',22);shadowOff(ctx)});
+  const sw=brandW(C,'site',F.site||'',22);
+  el(C,'site','Site',()=>[W-64*k-sw,y-26*k,Math.max(40*k,sw),36*k],P=>{ctx.fillStyle=P.fg;P.shOn();brandText(C,'site',F.site||'',W-64*k,y,'right',22);shadowOff(ctx)})}
+function tLiniste(C){const{ctx,W,H,k,st,F}=C;let ls,lh,bh,y0,size;
+  el(C,'text','Citat',P=>{size=st.font.serif||P.L.font!=='stil'?70:56;ctx.font=P.hf(size);P.hs(size);const q=F.quote||'';ls=wrap(ctx,P.ht(q),800*k,5);setLS(ctx,0);lh=size*1.18*k*((FONTS[P.L.font]||{}).scale||1);
+      const subH=F.subtitle?60*k:0;bh=ls.length*lh+subH;y0=H/2-bh/2+lh*.75;return[W/2-440*k,y0-lh*.85,880*k,bh+lh*.2]},
+    P=>{P.scrim(W/2-470*k,y0-lh-30*k,940*k,bh+80*k);ctx.font=P.hf(size);P.hs(size);ctx.fillStyle=P.fg;ctx.textAlign='center';P.shOn();lines(ctx,ls,W/2,y0,lh);
+      if(F.subtitle){setLS(ctx,5*k);ctx.font=P.sf(400,22);ctx.fillText('— '+F.subtitle.toUpperCase(),W/2,y0+(ls.length-1)*lh+70*k)}
+      shadowOff(ctx);setLS(ctx,0);ctx.textAlign='left'});
+  footer(C);}
+function tOferta(C){const{ctx,W,H,k,st,F,safeB,tall}=C;const pad=72*k;const sq=H/W<1.05;const tsize=sq?62:74;
+  const P0=mkP(C,'heading');ctx.font=P0.hf(tsize);P0.hs(tsize);const tl0=wrap(ctx,P0.ht(F.title),W-2*pad,2);setLS(ctx,0);const tlh0=tsize*1.06*k;
+  const content=(F.period?48*k:0)+tl0.length*tlh0+(F.offer?54*k:0)+40*k+64*k;const band=Math.max(H*(sq?.38:tall?.28:.34),content+2*pad*.85)+safeB;const top=H-band;
+  el(C,'band','Banda',()=>[0,top,W,band],P=>{const fill=(COLORS[P.L.color]||{}).c||B.paper;ctx.save();ctx.beginPath();ctx.rect(0,top,W,band+2);ctx.shadowColor='rgba(0,0,0,.08)';ctx.shadowBlur=20*k;ctx.fillStyle=fill;ctx.fill();ctx.shadowColor='transparent';ctx.clip();paperFill(ctx,0,top,W,band+2,k,fill);ctx.restore()});
+  const y0=top+pad*.85+20*k;let tl,tlh;
+  el(C,'heading','Titlu și ofertă',P=>{ctx.font=P.hf(tsize);P.hs(tsize);tl=wrap(ctx,P.ht(F.title),W-2*pad,2);setLS(ctx,0);tlh=tsize*1.06*k*((FONTS[P.L.font]||{}).scale||1);
+      const hh=(F.period?48*k:0)+tlh*.6+(tl.length-1)*tlh+20*k+(F.offer?54*k:0);return[pad,y0-28*k,W-2*pad,hh+28*k]},
+    P=>{let y=y0;P.shOn();
+      if(F.period){ctx.font=P.sf(500,22);setLS(ctx,5*k);ctx.fillStyle=P.accent;ctx.fillText(F.period.toUpperCase(),pad,y);setLS(ctx,0);y+=48*k}
+      ctx.font=P.hf(tsize);P.hs(tsize);ctx.fillStyle=P.fg;y+=tlh*.6;lines(ctx,tl,pad,y,tlh);setLS(ctx,0);y+=(tl.length-1)*tlh+20*k;
+      if(F.offer){ctx.font=P.sf(400,30);ctx.fillStyle=P.accent;y+=36*k;ctx.fillText(F.offer,pad,y)}shadowOff(ctx)});
+  const py=H-safeB-pad*.85-64*k;
+  el(C,'cta','Buton rezervare',()=>[pad,py,W-2*pad,64*k],P=>{ctx.font=P.sf(500,24);setLS(ctx,2*k);const cta=(F.cta||'Rezervă').toUpperCase();const cw=ctx.measureText(cta).width+64*k;
+    const pill=P.L.color==='auto'?(P.bgLight?B.char:B.paper):P.fg;const pillText=hexLum(pill)>.6?B.char:B.paper;
+    rrect(ctx,pad,py,cw,64*k,32*k);ctx.fillStyle=pill;ctx.fill();ctx.fillStyle=pillText;ctx.fillText(cta,pad+32*k,py+41*k);
+    ctx.fillStyle=P.L.color==='auto'?(P.bgLight?B.char:B.white):P.fg;P.shOn();if(C.cfg.footer)brandText(C,'site',F.site||'',W-pad,py+40*k,'right',22);setLS(ctx,0);shadowOff(ctx)});
+  return top-110*k;}
+function tFac(C){const{ctx,W,H,k,st,F,cfg,safeT}=C;const g=ctx.createLinearGradient(0,0,W*.8,0);g.addColorStop(0,'rgba(22,19,16,.42)');g.addColorStop(.55,'rgba(22,19,16,.16)');g.addColorStop(1,'rgba(22,19,16,0)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  const pad=72*k;const sq=H/W<1.05;const y0=safeT+(sq?120:150)*k;const ts=st.font.serif?66:54;let tl,lh,headEnd;
+  el(C,'heading','Titlu',P=>{ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.title),680*k,2);setLS(ctx,0);lh=ts*1.08*k*((FONTS[P.L.font]||{}).scale||1);
+      const headH=(tl.length-1)*lh+ts*k*.8+(F.subtitle?52*k:0);headEnd=y0+(tl.length-1)*lh+(F.subtitle?52*k:0);return[pad,y0-ts*k*.8,700*k,headH+12*k]},
+    P=>{P.scrim(pad-30*k,y0-ts*k,760*k,(tl.length)*lh+(F.subtitle?80*k:40*k));ctx.fillStyle=P.fg;P.shOn();ctx.font=P.hf(ts);P.hs(ts);lines(ctx,tl,pad,y0,lh);setLS(ctx,0);
+      if(F.subtitle){ctx.font=P.sf(400,22);setLS(ctx,4*k);ctx.fillText(F.subtitle.toUpperCase(),pad,y0+(tl.length-1)*lh+52*k);setLS(ctx,0)}shadowOff(ctx)});
+  const yl=headEnd+(sq?50:70)*k;const items=FAC.filter(f=>cfg.facs.includes(f.id)).slice(0,8);const step=(sq?60:70)*k;
+  el(C,'list','Lista de facilități',()=>[pad,yl,600*k,Math.max(1,items.length)*step],P=>{P.scrim(pad-30*k,yl-20*k,640*k,items.length*step+30*k);let y=yl;
+    items.forEach(f=>{P.shOn();icon(ctx,f.id,pad,y,38*k,P.fg);ctx.font=P.sf(400,29);ctx.fillStyle=P.fg;ctx.fillText(f.ro,pad+62*k,y+28*k);shadowOff(ctx);y+=step})});
+  footer(C);}
+function tRama(C){const{ctx,W,H,k,st,F,area}=C;const x=area.x;const sq=H/W<1.05;const y0=area.y+area.h+(sq?78:96)*k;const ts=st.font.serif?60:46;let tl,lh;
+  el(C,'heading','Titlu',P=>{ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.title),area.w,2);setLS(ctx,0);lh=ts*1.08*k*((FONTS[P.L.font]||{}).scale||1);
+      return[x,y0-ts*k*.8,area.w,ts*k*.8+(tl.length-1)*lh+(F.subtitle?50*k:0)+10*k]},
+    P=>{P.shOn();ctx.font=P.hf(ts);P.hs(ts);ctx.fillStyle=P.fg;lines(ctx,tl,x,y0,lh);setLS(ctx,0);
+      if(F.subtitle){ctx.font=P.sf(400,22);setLS(ctx,4*k);ctx.fillStyle=P.accent;ctx.fillText(F.subtitle.toUpperCase(),x,y0+(tl.length-1)*lh+50*k);setLS(ctx,0)}shadowOff(ctx)});
+  footer(C);}
+function tLoc(C){const{ctx,W,H,k,st,F,safeT}=C;const pad=72*k;const y=safeT+190*k;const fs=st.font.serif?150:110;
+  el(C,'heading','Nume locație',()=>[pad-20*k,y-fs*k*.75,840*k,fs*k*.75+130*k],P=>{P.scrim(pad-40*k,y-170*k,820*k,300*k);
+    ctx.fillStyle=P.fg;P.shOn();ctx.font=P.L.font==='stil'?(st.font.serif?`300 ${fs*k}px ${SERIF}`:`300 ${fs*k}px ${SANS}`):P.hf(fs);setLS(ctx,0);ctx.fillText(P.ht(F.loc||''),pad,y);
+    ctx.font=P.sf(400,24);setLS(ctx,5*k);ctx.fillText((F.locDetail||'').toUpperCase(),pad,y+72*k);setLS(ctx,0);shadowOff(ctx);ctx.fillStyle=P.fg;ctx.fillRect(pad,y+110*k,120*k,2*k)});
+  footer(C);}
+function tCarusel(C){const{ctx,W,H,k,st,F,idx,total,safeB,cfg}=C;const pad=72*k;const last=total>1&&idx===total-1;const mid=total>1&&idx>0&&!last;
+  if(mid){let t,w,bx,by;el(C,'counter','Numerotare',P=>{ctx.font=P.sf(400,22);setLS(ctx,3*k);t=String(idx+1).padStart(2,'0')+' / '+String(total).padStart(2,'0');w=ctx.measureText(t).width+40*k;setLS(ctx,0);bx=W-pad-w;by=C.safeT+60*k;return[bx,by,w,50*k]},
+      P=>{rrect(ctx,bx,by,w,50*k,25*k);ctx.fillStyle=hexLum(P.fg)>.6?'rgba(20,17,14,.35)':'rgba(250,246,238,.6)';ctx.fill();ctx.font=P.sf(400,22);setLS(ctx,3*k);ctx.fillStyle=P.fg;ctx.fillText(t,bx+20*k,by+33*k);setLS(ctx,0)});
+    footer(C);return}
+  const g=ctx.createLinearGradient(0,H*.55,0,H);g.addColorStop(0,'rgba(20,17,14,0)');g.addColorStop(1,'rgba(20,17,14,.48)');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  const maxW=W-2*pad-(cfg.boss?170*k:0);
+  if(!last){const ts=st.font.serif?96:76;let tl,lh,base;
+    el(C,'heading','Titlu copertă',P=>{ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.title),maxW,3);setLS(ctx,0);lh=ts*1.04*k*((FONTS[P.L.font]||{}).scale||1);
+        base=H-safeB-(F.subtitle?190:140)*k;const top=base-(tl.length-1)*lh-ts*k*.8;return[pad,top,maxW,base-top+(F.subtitle?72*k:16*k)]},
+      P=>{P.scrim(pad-30*k,base-(tl.length)*lh-20*k,maxW+60*k,tl.length*lh+(F.subtitle?110*k:50*k));ctx.fillStyle=P.fg;P.shOn();ctx.font=P.hf(ts);P.hs(ts);lines(ctx,tl,pad,base-(tl.length-1)*lh,lh);setLS(ctx,0);
+        if(F.subtitle){ctx.font=P.sf(400,24);setLS(ctx,4*k);ctx.fillText(F.subtitle.toUpperCase(),pad,base+62*k);setLS(ctx,0)}shadowOff(ctx)});
+    if(total>1){const sy=H-safeB-60*k;let sw;el(C,'swipe','Glisează',P=>{ctx.font=P.sf(500,20);setLS(ctx,4*k);sw=ctx.measureText('GLISEAZĂ  →').width;setLS(ctx,0);return[W-pad-sw,sy-20*k,sw,26*k]},
+      P=>{ctx.fillStyle=P.fg;P.shOn();ctx.font=P.sf(500,20);setLS(ctx,4*k);ctx.textAlign='right';ctx.fillText('GLISEAZĂ  →',W-pad,sy);ctx.textAlign='left';setLS(ctx,0);shadowOff(ctx)})}
+  }else{const ts=st.font.serif?88:68;const base=H-safeB-250*k;let tl,lh;
+    el(C,'heading','Îndemn și site',P=>{ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.cta||'Rezervă direct'),maxW,2);setLS(ctx,0);lh=ts*1.04*k*((FONTS[P.L.font]||{}).scale||1);const top=base-(tl.length-1)*lh-ts*k*.8;return[pad,top,maxW,base-top+82*k]},
+      P=>{P.scrim(pad-30*k,base-tl.length*lh-20*k,maxW+60*k,tl.length*lh+120*k);ctx.fillStyle=P.fg;P.shOn();ctx.font=P.hf(ts);P.hs(ts);lines(ctx,tl,pad,base-(tl.length-1)*lh,lh);setLS(ctx,0);
+        ctx.fillStyle=P.accent;brandText(C,'site',F.site||'',pad,base+70*k,'left',30);shadowOff(ctx)});
+    const lab=(F.period||'Rezervări deschise').toUpperCase();let w;
+    el(C,'cta','Etichetă perioadă',P=>{ctx.font=P.sf(500,22);setLS(ctx,3*k);w=ctx.measureText(lab).width+56*k;setLS(ctx,0);return[pad,base+110*k,w,58*k]},
+      P=>{const pill=P.L.color==='auto'?B.paper:P.fg;rrect(ctx,pad,base+110*k,w,58*k,29*k);ctx.fillStyle=pill;ctx.fill();ctx.font=P.sf(500,22);setLS(ctx,3*k);ctx.fillStyle=hexLum(pill)>.6?B.char:B.paper;ctx.fillText(lab,pad+28*k,base+147*k);setLS(ctx,0)});
+    if(cfg.footer){const hy=H-safeB-54*k;const hw=brandW(C,'handle',F.handle||'',22);el(C,'handle','Handle Instagram',()=>[W-pad-hw,hy-26*k,Math.max(40*k,hw),36*k],P=>{ctx.fillStyle=P.fg;P.shOn();brandText(C,'handle',F.handle||'',W-pad,hy,'right',22);shadowOff(ctx)})}}
+}
+function bossStamp(C,y){const{ctx,W,k}=C;const r=58*k,cx=W-72*k-r,cy=y;
+  el(C,'boss','Ștampila Boss',()=>[cx-r,cy-r,2*r,2*r],P=>{const fill=(COLORS[P.L.color]||{}).c||B.paper;const ink=hexLum(fill)>.6?B.char:B.paper;ctx.save();ctx.shadowColor='rgba(0,0,0,.25)';ctx.shadowBlur=16*k;ctx.fillStyle=fill;ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fill();ctx.restore();
+    ctx.strokeStyle=B.copper;ctx.lineWidth=1.5*k;ctx.beginPath();ctx.arc(cx,cy,r-7*k,0,7);ctx.stroke();paw(ctx,cx,cy-12*k,46*k,ink);ctx.font=P.sf(500,15);setLS(ctx,3*k);ctx.fillStyle=ink;ctx.textAlign='center';ctx.fillText('BOSS',cx+1.5*k,cy+34*k);ctx.textAlign='left';setLS(ctx,0)})}
+function drawLogo(C){const{ctx,W,H,k,cfg,safeT,safeB}=C;const L=cfg.logo;if(L.pos==='none')return;
+  const m=60*k;const sw=L.size*k;let w,h,draw;
+  if(L.color==='custom'&&L.img){w=sw*1.3;h=w*L.img.height/L.img.width;draw=(x,y)=>ctx.drawImage(L.img,x,y,w,h)}
+  else{const symW=sw*.7;const sh=symW*418/420;const ns=sw*.19;const nameTxt=bfText(cfg,'logo','Pine Roots');const nsp=bfSpace(cfg,'logo',ns,1)*1.3;
+    ctx.font=bfFont(cfg,'logo',ns,1);setLS(ctx,nsp);const nw=L.name?ctx.measureText(nameTxt).width:0;setLS(ctx,0);
+    const gap=sw*.13;w=Math.max(symW,nw);h=sh+(L.name?gap+ns:0);
+    draw=(x,y,P)=>{const ov=P.L.color;let col=ov==='white'||ov==='paper'?'white':ov==='char'?'char':ov==='copper'||ov==='copperL'?'copper':L.color;
+      if(col==='auto')col=P.bgLight?'copper':'white';
+      const nameCol=col==='char'?B.char:col==='white'?B.white:(P.bgLight?'#93603F':'#C9A27E');
+      if(col==='white'){ctx.shadowColor='rgba(0,0,0,.35)';ctx.shadowBlur=10*k}
+      drawSymbol(ctx,x+(w-symW)/2,y,symW,col);
+      if(L.name){ctx.font=bfFont(cfg,'logo',ns,1);setLS(ctx,nsp);ctx.fillStyle=nameCol;ctx.textAlign='center';ctx.fillText(nameTxt,x+w/2+nsp/2,y+sh+gap+ns*.8);ctx.textAlign='left'}
+      setLS(ctx,0);ctx.shadowColor='transparent';ctx.shadowBlur=0};}
+  const top=safeT+m*.8,bot=H-safeB-m-h-(cfg.footer?50*k:0);
+  const pos={tl:[m,top],tr:[W-m-w,top],tc:[(W-w)/2,top],bl:[m,bot],br:[W-m-w,bot]}[L.pos];
+  el(C,'logo','Logo',()=>[pos[0],pos[1],w,h],P=>{ctx.globalAlpha=L.op/100;draw(pos[0],pos[1],P)});}
+
+/* ---------- More templates ---------- */
+function cardCols(P){const fill=(COLORS[P.L.color]||{}).c||B.paper;const light=hexLum(fill)>.6;return{fill,ink:light?B.char:B.paper,acc:light?B.copper:B.copperL}}
+function fscale(P){return (FONTS[P.L.font]||{}).scale||1}
+function star(ctx,cx,cy,r,col){ctx.beginPath();for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5;const rr=i%2?r*.45:r;ctx.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr)}ctx.closePath();ctx.fillStyle=col;ctx.fill()}
+function softShadow(ctx,k){ctx.shadowColor='rgba(30,22,15,.18)';ctx.shadowBlur=30*k;ctx.shadowOffsetY=6*k}
+// 1. Etichetă colț
+function tColt(C){const{ctx,W,H,k,F,safeB,cfg}=C;let x,y,w,h,tl,lh;const ts=46;
+  el(C,'card','Etichetă',P=>{ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.title),560*k,2);const tw=Math.max(...tl.map(l=>ctx.measureText(l).width));setLS(ctx,0);lh=ts*1.1*k*fscale(P);
+      ctx.font=P.sf(500,19);setLS(ctx,4*k);const sw=F.subtitle?ctx.measureText(F.subtitle.toUpperCase()).width:0;setLS(ctx,0);ctx.font=P.sf(400,24);const ow=F.offer?ctx.measureText(F.offer).width:0;
+      w=Math.max(300*k,tw,sw,ow)+80*k;h=44*k+(F.subtitle?36*k:0)+tl.length*lh+(F.offer?44*k:0)+30*k;x=56*k;y=H-safeB-56*k-h-(cfg.footer?50*k:0);return[x,y,w,h]},
+    P=>{const c=cardCols(P);ctx.save();softShadow(ctx,k);rrect(ctx,x,y,w,h,6*k);ctx.fillStyle=c.fill;ctx.fill();ctx.restore();let yy=y+44*k;
+      if(F.subtitle){ctx.font=P.sf(500,19);setLS(ctx,4*k);ctx.fillStyle=c.acc;ctx.fillText(F.subtitle.toUpperCase(),x+40*k,yy);setLS(ctx,0);yy+=36*k}
+      ctx.font=P.hf(ts);P.hs(ts);ctx.fillStyle=c.ink;yy+=lh*.55;lines(ctx,tl,x+40*k,yy,lh);setLS(ctx,0);yy+=(tl.length-1)*lh;
+      if(F.offer){ctx.font=P.sf(400,24);ctx.fillStyle=c.acc;ctx.fillText(F.offer,x+40*k,yy+44*k)}});
+  footer(C);}
+// 2. Jumătate (poza sus, text jos)
+function tSplit(C){const{ctx,W,H,k,F,safeB,area}=C;const pad=72*k;const y0=area.y+area.h+90*k;const ts=64;let tl,lh;
+  el(C,'heading','Titlu',P=>{ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.title),W-2*pad,2);setLS(ctx,0);lh=ts*1.06*k*fscale(P);return[pad,y0-28*k,W-2*pad,(F.period?46*k:0)+lh*.6+(tl.length-1)*lh+(F.subtitle?56*k:0)+40*k]},
+    P=>{let y=y0;P.shOn();if(F.period){ctx.font=P.sf(500,21);setLS(ctx,5*k);ctx.fillStyle=P.accent;ctx.fillText(F.period.toUpperCase(),pad,y);setLS(ctx,0);y+=46*k}
+      ctx.font=P.hf(ts);P.hs(ts);ctx.fillStyle=P.fg;y+=lh*.6;lines(ctx,tl,pad,y,lh);setLS(ctx,0);y+=(tl.length-1)*lh;
+      if(F.subtitle){ctx.font=P.sf(400,26);ctx.fillStyle=P.fg;ctx.globalAlpha*=.8;ctx.fillText(F.subtitle,pad,y+56*k)}shadowOff(ctx)});
+  const py=H-safeB-72*k-60*k;
+  el(C,'cta','Buton rezervare',()=>[pad,py,W-2*pad,60*k],P=>{ctx.font=P.sf(500,22);setLS(ctx,2*k);const t=(F.cta||'Rezervă').toUpperCase();const cw=ctx.measureText(t).width+60*k;
+    const pill=P.L.color==='auto'?(P.bgLight?B.char:B.paper):P.fg;rrect(ctx,pad,py,cw,60*k,30*k);ctx.fillStyle=pill;ctx.fill();ctx.fillStyle=hexLum(pill)>.6?B.char:B.paper;ctx.fillText(t,pad+30*k,py+39*k);
+    if(C.cfg.footer){ctx.fillStyle=P.L.color==='auto'?(P.bgLight?B.char:B.white):P.fg;brandText(C,'site',F.site||'',W-pad,py+38*k,'right',21)}setLS(ctx,0)});
+  return area.y+area.h-90*k;}
+// 3. Polaroid
+function tPolaroid(C){const{ctx,W,H,k,F,area,card}=C;const cy=area.y+area.h+(card.y+card.h-area.y-area.h)/2;let tl,lh,ts;
+  el(C,'heading','Text polaroid',P=>{const hand=P.L.font==='stil';ts=hand?62:46;ctx.font=hand?`500 ${ts*k}px Caveat, "Segoe Script", cursive`:P.hf(ts);if(!hand)P.hs(ts);tl=wrap(ctx,hand?F.title:P.ht(F.title),card.w-120*k,2);setLS(ctx,0);
+      lh=ts*1.05*k*(hand?1:fscale(P));const hh=tl.length*lh+(F.subtitle?40*k:0);return[card.x+40*k,cy-hh/2-10*k,card.w-80*k,hh+20*k]},
+    P=>{const hand=P.L.font==='stil';const hh=tl.length*lh+(F.subtitle?40*k:0);let y=cy-hh/2+lh*.75;ctx.font=hand?`500 ${ts*k}px Caveat, "Segoe Script", cursive`:P.hf(ts);if(!hand)P.hs(ts);
+      ctx.fillStyle=P.fg;ctx.textAlign='center';P.shOn();lines(ctx,tl,W/2,y,lh);setLS(ctx,0);
+      if(F.subtitle){ctx.font=P.sf(400,19);setLS(ctx,4*k);ctx.fillStyle=P.accent;ctx.fillText(F.subtitle.toUpperCase(),W/2,y+(tl.length-1)*lh+42*k);setLS(ctx,0)}ctx.textAlign='left';shadowOff(ctx)});
+  footer(C);}
+// 4. Copertă revistă
+function tCoperta(C){const{ctx,W,H,k,F,safeT,safeB}=C;const pad=72*k;const y0=safeT+170*k;let tl,lh,ts;
+  el(C,'heading','Titlu copertă',P=>{ts=104;ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.title),W-2*pad,2);setLS(ctx,0);lh=ts*1.0*k*fscale(P);return[pad,y0-ts*k*.8,W-2*pad,ts*k*.8+(tl.length-1)*lh+(F.subtitle?90*k:20*k)]},
+    P=>{ctx.font=P.hf(ts);P.hs(ts);ctx.fillStyle=P.fg;ctx.textAlign='center';P.shOn();lines(ctx,tl,W/2,y0,lh);setLS(ctx,0);const yb=y0+(tl.length-1)*lh;
+      if(F.subtitle){ctx.fillRect(W/2-40*k,yb+34*k,80*k,2*k);ctx.font=P.sf(400,21);setLS(ctx,6*k);ctx.fillText(F.subtitle.toUpperCase(),W/2+3*k,yb+82*k);setLS(ctx,0)}ctx.textAlign='left';shadowOff(ctx)});
+  const my=H-safeB-150*k;
+  el(C,'meta','Perioadă și ofertă',()=>[pad,my-30*k,620*k,(F.offer?90*k:50*k)],P=>{P.shOn();ctx.fillStyle=P.accent;ctx.font=P.sf(500,21);setLS(ctx,5*k);ctx.fillText((F.period||'').toUpperCase(),pad,my);setLS(ctx,0);
+    if(F.offer){ctx.fillStyle=P.fg;ctx.font=P.sf(400,28);ctx.fillText(F.offer,pad,my+46*k)}shadowOff(ctx)});
+  footer(C);}
+// 5. Insignă ofertă
+function tPret(C){const{ctx,W,H,k,F,safeB,cfg}=C;const pad=72*k;const r=150*k;const cx=W-80*k-r,cy=H-safeB-(cfg.footer?120:80)*k-r;let ol;
+  el(C,'badge','Insignă',P=>{ctx.font=P.hf(40);P.hs(40);ol=wrap(ctx,P.ht(F.offer||F.cta||''),r*1.45,3);setLS(ctx,0);return[cx-r,cy-r,2*r,2*r]},
+    P=>{const c=cardCols(P);ctx.save();softShadow(ctx,k);ctx.beginPath();ctx.arc(cx,cy,r,0,7);ctx.fillStyle=c.fill;ctx.fill();ctx.restore();
+      ctx.strokeStyle=c.acc;ctx.lineWidth=1.5*k;ctx.beginPath();ctx.arc(cx,cy,r-12*k,0,7);ctx.stroke();ctx.textAlign='center';
+      const lh=40*1.1*k*fscale(P);const top=cy-(ol.length-1)*lh/2+12*k;ctx.font=P.sf(500,17);setLS(ctx,4*k);ctx.fillStyle=c.acc;ctx.fillText((F.period||'OFERTĂ').toUpperCase(),cx+2*k,top-lh*.95);setLS(ctx,0);
+      ctx.font=P.hf(40);P.hs(40);ctx.fillStyle=c.ink;lines(ctx,ol,cx,top,lh);setLS(ctx,0);ctx.textAlign='left'});
+  const ts=72;let tl,lh;const maxW=W-2*pad-2*r-40*k;const base=H-safeB-(cfg.footer?150:110)*k;
+  el(C,'heading','Titlu',P=>{ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.title),maxW,3);setLS(ctx,0);lh=ts*1.04*k*fscale(P);const top=base-(tl.length-1)*lh-ts*k*.8;return[pad,top,maxW,base-top+(F.subtitle?60*k:16*k)]},
+    P=>{P.scrim(pad-30*k,base-tl.length*lh-20*k,maxW+60*k,tl.length*lh+(F.subtitle?100*k:50*k));ctx.fillStyle=P.fg;P.shOn();ctx.font=P.hf(ts);P.hs(ts);lines(ctx,tl,pad,base-(tl.length-1)*lh,lh);setLS(ctx,0);
+      if(F.subtitle){ctx.font=P.sf(400,22);setLS(ctx,4*k);ctx.fillText(F.subtitle.toUpperCase(),pad,base+52*k);setLS(ctx,0)}shadowOff(ctx)});
+  footer(C);}
+// 6. Card rezervare
+function tCard(C){const{ctx,W,H,k,F,safeB,cfg}=C;const m=48*k,ip=48*k;const x=m,w=W-2*m;const ts=56;let tl,lh,h,y;const items=FAC.filter(f=>cfg.facs.includes(f.id)).slice(0,4);
+  el(C,'card','Card rezervare',P=>{ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.title),w-2*ip,2);setLS(ctx,0);lh=ts*1.06*k*fscale(P);
+      h=ip+(F.period?42*k:0)+lh*.6+(tl.length-1)*lh+(items.length?120*k:30*k)+70*k+ip;y=H-safeB-m-h;return[x,y,w,h]},
+    P=>{const c=cardCols(P);ctx.save();softShadow(ctx,k);rrect(ctx,x,y,w,h,22*k);ctx.fillStyle=c.fill;ctx.fill();ctx.restore();let yy=y+ip+18*k;
+      if(F.period){ctx.font=P.sf(500,20);setLS(ctx,5*k);ctx.fillStyle=c.acc;ctx.fillText(F.period.toUpperCase(),x+ip,yy);setLS(ctx,0);yy+=42*k}
+      ctx.font=P.hf(ts);P.hs(ts);ctx.fillStyle=c.ink;yy+=lh*.6;lines(ctx,tl,x+ip,yy,lh);setLS(ctx,0);yy+=(tl.length-1)*lh+30*k;
+      if(items.length){const cw=(w-2*ip)/items.length;ctx.strokeStyle=c.ink;ctx.globalAlpha*=.15;ctx.fillStyle=c.ink;ctx.fillRect(x+ip,yy,w-2*ip,1.5*k);ctx.globalAlpha/=.15;
+        items.forEach((f,i)=>{const ix=x+ip+i*cw;icon(ctx,f.id,ix,yy+22*k,34*k,c.ink);ctx.font=P.sf(400,18);ctx.fillStyle=c.ink;ctx.fillText(f.ro.length>18?f.ro.slice(0,17)+'…':f.ro,ix,yy+82*k)});yy+=110*k}
+      ctx.font=P.sf(500,22);setLS(ctx,2*k);const t=(F.cta||'Rezervă').toUpperCase();const pw=ctx.measureText(t).width+56*k;const py=y+h-ip-58*k;
+      rrect(ctx,x+ip,py,pw,58*k,29*k);ctx.fillStyle=c.ink;ctx.fill();ctx.fillStyle=c.fill;ctx.fillText(t,x+ip+28*k,py+37*k);
+      if(C.cfg.footer){ctx.fillStyle=c.ink;brandText(C,'site',F.site||'',x+w-ip,py+37*k,'right',20)}setLS(ctx,0)});
+  return y-110*k;}
+// 7. O singură linie
+function tLinie(C){const{ctx,W,H,k,F,safeB,cfg}=C;const pad=72*k;const base=H-safeB-(cfg.footer?130:90)*k;const ts=50;let t1;
+  el(C,'heading','Titlu',P=>{ctx.font=P.hf(ts);P.hs(ts);t1=wrap(ctx,P.ht(F.title),W-2*pad,1)[0]||'';setLS(ctx,0);return[pad,base-ts*k-30*k,W-2*pad,ts*k+70*k]},
+    P=>{P.scrim(pad-30*k,base-ts*k-50*k,W-2*pad+60*k,ts*k+110*k);ctx.fillStyle=P.fg;P.shOn();ctx.fillRect(pad,base-ts*k-24*k,56*k,2*k);ctx.font=P.hf(ts);P.hs(ts);ctx.fillText(t1,pad,base);setLS(ctx,0);
+      if(F.locDetail||F.subtitle){ctx.font=P.sf(400,19);setLS(ctx,4*k);ctx.fillText((F.subtitle||F.locDetail).toUpperCase(),pad,base+38*k);setLS(ctx,0)}shadowOff(ctx)});
+  footer(C);}
+// 8. Recenzie oaspeți
+function tRecenzie(C){const{ctx,W,H,k,F}=C;const w=W-200*k,x=100*k;const ts=40;let ql,lh,h,y;
+  el(C,'card','Card recenzie',P=>{ctx.font=P.hf(ts);P.hs(ts);ql=wrap(ctx,P.ht(F.quote||''),w-120*k,7);setLS(ctx,0);lh=ts*1.3*k*fscale(P);h=60*k+40*k+30*k+ql.length*lh+(F.subtitle?60*k:0)+50*k;y=H/2-h/2;return[x,y,w,h]},
+    P=>{const c=cardCols(P);ctx.save();softShadow(ctx,k);rrect(ctx,x,y,w,h,10*k);ctx.fillStyle=c.fill;ctx.globalAlpha*=.96;ctx.fill();ctx.restore();
+      for(let i=0;i<5;i++)star(ctx,W/2+(i-2)*40*k,y+70*k,15*k,c.acc);ctx.textAlign='center';ctx.font=P.hf(ts);P.hs(ts);ctx.fillStyle=c.ink;let yy=y+70*k+40*k+lh*.8;lines(ctx,ql,W/2,yy,lh);setLS(ctx,0);
+      if(F.subtitle){ctx.font=P.sf(500,19);setLS(ctx,4*k);ctx.fillStyle=c.acc;ctx.fillText('— '+F.subtitle.toUpperCase(),W/2,yy+(ql.length-1)*lh+60*k);setLS(ctx,0)}ctx.textAlign='left'});
+  footer(C);}
+// 9. Facilități în cifre
+const STATS={camere:['4','camere cu baie'],pers:['8–12','persoane'],partie:['2 km','până la pârtie'],sauna:['1','saună'],ciubar:['1','ciubăr'],semineu:['1','șemineu']};
+function tCifre(C){const{ctx,W,H,k,F,safeT,safeB,cfg}=C;const pad=72*k;const y0=safeT+150*k;const ts=62;let tl,lh;
+  el(C,'heading','Titlu',P=>{ctx.font=P.hf(ts);P.hs(ts);tl=wrap(ctx,P.ht(F.title),W-2*pad-200*k,2);setLS(ctx,0);lh=ts*1.06*k*fscale(P);return[pad,y0-ts*k*.8,W-2*pad-200*k,ts*k*.8+(tl.length-1)*lh+20*k]},
+    P=>{P.scrim(pad-30*k,y0-ts*k,W-2*pad-140*k,tl.length*lh+40*k);ctx.fillStyle=P.fg;P.shOn();ctx.font=P.hf(ts);P.hs(ts);lines(ctx,tl,pad,y0,lh);setLS(ctx,0);shadowOff(ctx)});
+  const ids=['camere','pers','partie','sauna','ciubar','semineu'].filter(i=>cfg.facs.includes(i)).slice(0,3);const st=ids.length?ids:['camere','pers','partie'];
+  const sy=H-safeB-(cfg.footer?150:110)*k;const cw=(W-2*pad)/st.length;
+  el(C,'stats','Cifre',()=>[pad,sy-110*k,W-2*pad,150*k],P=>{P.scrim(pad-30*k,sy-130*k,W-2*pad+60*k,190*k);P.shOn();
+    st.forEach((id,i)=>{const x=pad+i*cw;const [n,l]=STATS[id];ctx.fillStyle=P.fg;ctx.font=P.hf(96);ctx.fillText(n,x,sy-20*k);ctx.font=P.sf(400,19);setLS(ctx,4*k);ctx.fillStyle=P.fg;ctx.fillText(l.toUpperCase(),x,sy+24*k);setLS(ctx,0);
+      if(i){shadowOff(ctx);ctx.fillStyle=P.fg;ctx.globalAlpha*=.5;ctx.fillRect(x-28*k,sy-100*k,1.5*k,130*k);ctx.globalAlpha/=.5;P.shOn()}});shadowOff(ctx)});
+  footer(C);}
+
+
+/* ---------- Overlays usable on any template ---------- */
+const FSHORT={sauna:'Saună',ciubar:'Ciubăr',semineu:'Șemineu',camere:'4 camere',pers:'8–12 pers.',partie:'2 km pârtie',joaca:'Loc de joacă',gratar:'Grătar'};
+function overlays(C){const{ctx,W,H,k,cfg,F,safeT}=C;const t=cfg.template;
+  if(cfg.showQuote&&F.quote&&!['liniste','recenzie'].includes(t)){const ts=48;let ql,lh,y0;
+    el(C,'quoteX','Citat',P=>{ctx.font=P.hf(ts);P.hs(ts);ql=wrap(ctx,P.ht(F.quote),760*k,4);setLS(ctx,0);lh=ts*1.2*k*fscale(P);y0=H*(cfg.showFacs&&!['facilitati','card','cifre'].includes(t)?.27:.42)-(ql.length-1)*lh/2;return[W/2-400*k,y0-lh*.85,800*k,ql.length*lh+lh*.2]},
+      P=>{P.scrim(W/2-430*k,y0-lh-20*k,860*k,ql.length*lh+50*k);ctx.font=P.hf(ts);P.hs(ts);ctx.fillStyle=P.fg;ctx.textAlign='center';P.shOn();lines(ctx,ql,W/2,y0,lh);setLS(ctx,0);ctx.textAlign='left';shadowOff(ctx)})}
+  if(cfg.showFacs&&!['facilitati','card','cifre'].includes(t)){const items=FAC.filter(f=>cfg.facs.includes(f.id)).slice(0,8);if(!items.length)return;const mode=cfg.facsMode||'row';
+    if(mode==='list'){const x=72*k,y0=safeT+H*.28,step=58*k;let tw=0;
+      el(C,'facsX','Facilități',P=>{ctx.font=P.sf(400,25);tw=Math.max(...items.map(f=>ctx.measureText(f.ro).width));return[x,y0,52*k+tw,items.length*step]},
+        P=>{P.scrim(x-30*k,y0-20*k,tw+110*k,items.length*step+30*k);let y=y0;items.forEach(f=>{P.shOn();icon(ctx,f.id,x,y,32*k,P.fg);ctx.font=P.sf(400,25);ctx.fillStyle=P.fg;ctx.fillText(f.ro,x+52*k,y+24*k);shadowOff(ctx);y+=step})})}
+    else{const icOnly=mode==='icons';const per=icOnly?8:4;const cw=(icOnly?96:200)*k;const rh=(icOnly?70:118)*k;const rows=Math.ceil(items.length/per);const n0=Math.min(per,items.length);const tw=cw*n0;const x0=(W-tw)/2,y0=H*(cfg.showQuote&&F.quote&&!['liniste','recenzie'].includes(t)?.47:.45)-rows*rh/2+(cfg.showQuote&&F.quote?40*k:0);
+      el(C,'facsX','Facilități',()=>[x0,y0,tw,rows*rh],P=>{P.scrim(x0-30*k,y0-20*k,tw+60*k,rows*rh+30*k);
+        items.forEach((f,i)=>{const r=Math.floor(i/per),c=i%per;const nIn=Math.min(per,items.length-r*per);const rx=(W-cw*nIn)/2;const cx=rx+c*cw+cw/2,yy=y0+r*rh;
+          P.shOn();icon(ctx,f.id,cx-20*k,yy+6*k,40*k,P.fg);if(!icOnly){ctx.font=P.sf(400,20);ctx.fillStyle=P.fg;ctx.textAlign='center';ctx.fillText(FSHORT[f.id],cx,yy+82*k);ctx.textAlign='left'}shadowOff(ctx)})})}}}
+/* ---------- Captions ---------- */
+const HOOKS={ro:{
+  calm:{wabi:'Lucrurile simple, făcute încet. Lemn, piatră, foc.',munte:'Ceața se ridică încet peste Apuseni. Aici timpul are alt ritm.',minimal:'Mai puțin zgomot. Mai mult munte.',travel:'Următoarea evadare e mai aproape decât crezi.',iarna:'Zăpadă afară, foc de lemne înăuntru.',seara:'Serile la cabană încep când se aprinde focul.'},
+  direct:{wabi:'Ai nevoie de un weekend fără grabă? Cabana e pregătită.',munte:'Weekend la munte cu toată gașca? Ia cabana întreagă.',minimal:'O cabană. 4 camere. Zero agitație.',travel:'Pleci cu prietenii sau cu familia? Cabana e doar a voastră.',iarna:'Vine sezonul de ski, iar pârtia e la 2 km.',seara:'Saună, ciubăr, șemineu. Restul e doar seară.'},
+  family:{wabi:'Un loc unde copiii aleargă afară, iar adulții chiar se odihnesc.',munte:'Aer de munte pentru toată familia, cu loc de joacă și grătar.',minimal:'Spațiu pentru toți: 4 camere, fiecare cu baia ei.',travel:'Bagajele în portbagaj, direcția Mărișel.',iarna:'Săniuș ziua, povești lângă șemineu seara.',seara:'Seara se strâng toți în jurul focului.'}},
+ en:{
+  calm:{wabi:'Simple things, done slowly. Wood, stone, fire.',munte:'Mist rising over the Apuseni Mountains. Time moves differently here.',minimal:'Less noise. More mountain.',travel:'Your next escape is closer than you think.',iarna:'Snow outside, a wood fire inside.',seara:'Evenings at the cabin begin when the fire is lit.'},
+  direct:{wabi:'Need an unhurried weekend? The cabin is ready.',munte:'Mountain weekend with the whole crew? Book the entire cabin.',minimal:'One cabin. 4 bedrooms. Zero rush.',travel:'Friends or family trip? The cabin is all yours.',iarna:'Ski season is coming, and the slope is 2 km away.',seara:'Sauna, hot tub, fireplace. The rest is just the evening.'},
+  family:{wabi:'A place where kids run outside and grown-ups actually rest.',munte:'Mountain air for the whole family, with a playground and BBQ.',minimal:'Room for everyone: 4 bedrooms, each with its own bathroom.',travel:'Bags in the trunk, heading to Mărișel.',iarna:'Sledding by day, stories by the fireplace at night.',seara:'In the evening, everyone gathers around the fire.'}}};
+const EMO={calm:'🌿',direct:'🏔️',family:'🌲'};
+const TAGS={local:['#Marisel','#MuntiiApuseni','#Apuseni','#Cluj','#Transilvania','#VisitRomania'],niche:['#cabanadeinchiriat','#cabanalamunte','#wabisabi','#japandi','#slowtravel','#mountaincabin','#ciubar','#sauna'],travel:['#romaniatravel','#weekendlamunte','#travelromania','#mountainlife','#naturelovers','#getaway'],
+  wabi:['#wabisabiliving','#japandistyle','#slowliving'],munte:['#mountainview','#carpathians','#hikingromania'],minimal:['#minimalism','#minimaldesign','#lessismore'],travel2:['#adventure','#roadtrip','#explore'],iarna:['#iarnalamunte','#skiromania','#winterescape'],seara:['#cozy','#cabinlife','#firesideevenings']};
+TAGS.natural=['#mountaincabin','#naturephotography','#apusenimountains'];
+function hashtags(style){const sp=TAGS[style==='travel'?'travel2':style]||TAGS.natural;return [...sp,...TAGS.local,...TAGS.niche.slice(0,6),...TAGS.travel.slice(0,4)].slice(0,19).join(' ')}
+function oneCaption(cfg,tone,lang){const F=cfg.fields,ro=lang==='ro';const out=[];out.push(HOOKS[lang][tone][cfg.style]+' '+EMO[tone]);out.push('');
+  if((cfg.template==='liniste'||cfg.template==='recenzie'||cfg.showQuote)&&F.quote&&ro)out.push(F.quote+(cfg.template==='recenzie'&&F.subtitle?' — '+F.subtitle:'')),out.push('');
+  const place=ro?`PineRoots, ${F.loc||'Mărișel'}, Munții Apuseni.`:`PineRoots, ${F.loc||'Mărișel'}, Apuseni Mountains, Romania.`;
+  if(F.subtitle&&ro)out.push(F.subtitle+'. '+place);else out.push(place);
+  const fl=FAC.filter(f=>cfg.facs.includes(f.id)).map(f=>(ro?f.ro:f.en));
+  if(fl.length)out.push((ro?'Te așteaptă: ':'Waiting for you: ')+fl.map((s,i)=>i?s.charAt(0).toLowerCase()+s.slice(1):s).join(', ')+'.');
+  if(F.period||F.offer)out.push('',[F.period,F.offer].filter(Boolean).join(' · '));
+  if(cfg.boss)out.push('',ro?'Boss, câinele cabanei, vă așteaptă la poartă 🐾':'Boss, the cabin dog, will greet you at the gate 🐾');
+  out.push('',ro?`${F.cta||'Rezervă direct pe site'}: ${F.site} (link în bio)`:`Book direct at ${F.site} (link in bio)`);
+  return out.join('\n');}
+function activeQuote(){const e=S.images[S.active];return e&&e.quote!==undefined?e.quote:S.fields.quote}
+function buildCaption(){const L=S.lang;const cf={...S,fields:{...S.fields,quote:activeQuote()}};let t;if(L==='both')t=oneCaption(cf,S.tone,'ro')+'\n\n— — —\n\n'+oneCaption(cf,S.tone,'en');else t=oneCaption(cf,S.tone,L);return t+'\n\n'+hashtags(S.style)}
+function refreshCaption(force){if(force)S.captionDirty=false;if(!S.captionDirty)$('caption').value=buildCaption()}
+
+/* ---------- UI build ---------- */
+const prev=$('preview');
+let EID=0;
+function entry(img,name,demoTag){const f=smartFocus(img);return{id:++EID,img,name,cx:f.cx,cy:f.cy,zoom:1,demo:demoTag||''}}
+let raf=0;function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(draw)}
+let lastC=null,elSig='';
+function draw(){const [w,h]=FORMATS[S.format];const pw=720;lastC=render(prev,pw,Math.round(pw*h/w),S,S.images[S.active],S.active,S.images.length,{preview:true});drawThumbs();buildEls();
+  clearTimeout(HIST.t);HIST.t=setTimeout(commit,450)}
+/* Undo / redo */
+const HIST={list:[],pos:-1,t:0,restoring:false};
+function snap(){return{bfont:{...S.bfont},style:S.style,adj:{...S.adj},template:S.template,format:S.format,fields:{...S.fields},facs:[...S.facs],boss:S.boss,logo:{...S.logo},footer:S.footer,showQuote:S.showQuote,showFacs:S.showFacs,facsMode:S.facsMode,lay:JSON.parse(JSON.stringify(S.lay)),images:S.images.map(e=>({e,cx:e.cx,cy:e.cy,zoom:e.zoom,quote:e.quote})),active:S.active}}
+function snapKey(s){return JSON.stringify({...s,logo:{...s.logo,img:null,imgData:s.logo.imgData?s.logo.imgData.length:0},images:s.images.map(i=>[i.e.id,+i.cx.toFixed(4),+i.cy.toFixed(4),i.zoom,i.quote])})}
+function commit(){clearTimeout(HIST.t);if(HIST.restoring)return;const s=snap(),key=snapKey(s);const cur=HIST.list[HIST.pos];if(cur&&cur.key===key)return;
+  HIST.list=HIST.list.slice(0,HIST.pos+1);HIST.list.push({s,key});if(HIST.list.length>100)HIST.list.shift();HIST.pos=HIST.list.length-1;histBtns()}
+function histBtns(){$('undo').disabled=HIST.pos<=0;$('redo').disabled=HIST.pos>=HIST.list.length-1}
+function restore(i){const s=HIST.list[i].s;HIST.restoring=true;
+  Object.assign(S,{bfont:{...s.bfont},style:s.style,adj:{...s.adj},template:s.template,format:s.format,fields:{...s.fields},facs:[...s.facs],boss:s.boss,logo:{...s.logo},footer:s.footer,lay:JSON.parse(JSON.stringify(s.lay)),active:s.active,sel:null});
+  S.images=s.images.map(i=>{i.e.cx=i.cx;i.e.cy=i.cy;i.e.zoom=i.zoom;i.e.quote=i.quote;return i.e});S.showQuote=s.showQuote;S.showFacs=s.showFacs;S.facsMode=s.facsMode;HIST.pos=i;elSig='';
+  buildStyles();buildSliders();buildTpls();buildFacs();syncInputs();syncZoom();refreshCaption();draw();clearTimeout(HIST.t);HIST.restoring=false;histBtns()}
+function undo(){commit();if(HIST.pos>0){restore(HIST.pos-1);toast('Anulat')}}
+function redo(){commit();if(HIST.pos<HIST.list.length-1){restore(HIST.pos+1);toast('Refăcut')}}
+function layOf(key){const lk=LK(key,S.template);S.lay[lk]=S.lay[lk]||{dx:0,dy:0,s:1,hide:false};return S.lay[lk]}
+function buildEls(){const els=(lastC&&lastC.els)||[];const seen=[];els.forEach(e=>{if(!seen.find(x=>x.key===e.key))seen.push(e)});
+  if(S.sel&&!seen.find(e=>e.key===S.sel))S.sel=null;
+  const sig=seen.map(e=>e.key+(layGet(S,e.key).hide?'h':'')).join()+'|'+S.sel;
+  if(sig!==elSig){elSig=sig;const box=$('elList');box.innerHTML='';seen.forEach(e=>{const b=document.createElement('button');b.type='button';b.className='btn';
+    b.textContent=e.label+(layGet(S,e.key).hide?' (ascuns)':'');b.setAttribute('aria-pressed',S.sel===e.key);b.onclick=()=>{S.sel=S.sel===e.key?null:e.key;schedule()};box.appendChild(b)});
+    $('elCtl').hidden=!S.sel;if(S.sel){const L=layGet(S,S.sel);$('elHide').textContent=L.hide?'Arată':'Ascunde';
+      const isLogo=S.sel==='logo',isBand=['band','boss','card','badge'].includes(S.sel);$('elFontWrap').hidden=S.sel==='band'||(isLogo&&S.logo.color==='custom');$('elColorLab').textContent=isBand?'Culoare fundal':isLogo?'Culoare logo':'Culoare text';
+      $('elAutoNote').hidden=isBand;const cw=$('elColors');cw.innerHTML='';
+      const keys=isLogo?['auto','white','char','copper']:isBand?['auto','paper','white','char','sage']:Object.keys(COLORS);
+      keys.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='sw';b.setAttribute('aria-pressed',(L.color||'auto')===c);
+        const sw=c==='auto'?'conic-gradient(#2A2622 0 50%,#FAF6EE 0)':(c==='paper'&&isBand?B.paper:COLORS[c].c);b.innerHTML=`<i style="background:${sw}"></i>${c==='auto'&&isBand?'Implicit':COLORS[c].name}`;
+        b.onclick=()=>{layOf(S.sel).color=c;elSig='';schedule()};cw.appendChild(b)});
+      $('elFont').value=BRANDK[S.sel]?S.bfont[BRANDK[S.sel]]:(L.font||'stil')}}
+  if(S.sel&&document.activeElement!==$('elSize')){const v=Math.round(layGet(S,S.sel).s*100);$('elSize').value=v;$('elSizeOut').textContent=v+'%'}}
+function drawThumbs(){const box=$('thumbs');box.innerHTML='';S.images.forEach((e,i)=>{const b=document.createElement('button');b.type='button';b.className='thumb';b.setAttribute('aria-current',i===S.active);b.setAttribute('aria-label','Poza '+(i+1));
+  const c=document.createElement('canvas');const [w,h]=FORMATS[S.format];render(c,128,Math.round(128*h/w),S,e,i,S.images.length);b.appendChild(c);
+  if(e.demo){const t=document.createElement('span');t.className='tag';t.textContent='DEMO';b.appendChild(t)}
+  const x=document.createElement('span');x.className='x';x.textContent='×';x.setAttribute('role','button');x.setAttribute('aria-label','Elimină poza');x.onclick=ev=>{ev.stopPropagation();S.images.splice(i,1);S.active=Math.max(0,Math.min(S.active,S.images.length-1));syncZoom();schedule()};b.appendChild(x);
+  b.onclick=()=>{S.active=i;syncZoom();schedule()};box.appendChild(b)})}
+function syncZoom(){const e=S.images[S.active];$('zoom').value=e?e.zoom:1;$('zoomOut').textContent=(+$('zoom').value).toFixed(2)+'×';
+  if(document.activeElement!==$('quote'))$('quote').value=activeQuote()||'';$('quoteLab').textContent=S.images.length>1?`Citat pentru poza ${S.active+1} din ${S.images.length}`:'Citat';refreshCaption()}
+
+function buildStyles(){const box=$('styles');box.innerHTML='';Object.entries(STYLES).forEach(([id,s])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.setAttribute('aria-pressed',S.style===id);
+  b.innerHTML=`<span class="dots">${s.dots.map(c=>`<i style="background:${c}"></i>`).join('')}</span><b>${s.name}</b>`;b.onclick=()=>{S.style=id;S.adj={...s.adj};buildStyles();buildSliders();refreshCaption();schedule()};box.appendChild(b)})}
+function buildSliders(){const box=$('sliders');box.innerHTML='';SLIDERS.forEach(([key,label,min,max])=>{const d=document.createElement('div');d.className='sl';const id='adj_'+key;
+  d.innerHTML=`<label for="${id}">${label} <output>${S.adj[key]}</output></label><input type="range" id="${id}" min="${min}" max="${max}" value="${S.adj[key]}">`;
+  const inp=d.querySelector('input'),o=d.querySelector('output');inp.oninput=()=>{S.adj[key]=+inp.value;o.textContent=inp.value;schedule()};box.appendChild(d)})}
+function buildTpls(){const box=$('tpls');box.innerHTML='';Object.entries(TEMPLATES).forEach(([id,t])=>{const b=document.createElement('button');b.type='button';b.className='btn';b.style.borderRadius='8px';b.textContent=t.name;b.setAttribute('aria-pressed',S.template===id);
+  b.onclick=()=>{S.template=id;S.sel=null;buildTpls();refreshCaption();schedule()};box.appendChild(b)});$('tplNote').textContent=TEMPLATES[S.template].note}
+function buildFacs(){const box=$('facs');box.innerHTML='';FAC.forEach(f=>{const l=document.createElement('label');l.innerHTML=`<input type="checkbox" id="fac_${f.id}" ${S.facs.includes(f.id)?'checked':''}> ${f.ro}`;
+  l.querySelector('input').onchange=e=>{if(e.target.checked)S.facs.push(f.id);else S.facs=S.facs.filter(x=>x!==f.id);refreshCaption();schedule()};box.appendChild(l)})}
+function segs(){document.querySelectorAll('#formatSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===S.format));
+  document.querySelectorAll('#toneSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.t===S.tone));
+  document.querySelectorAll('#langSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.l===S.lang))}
+function syncInputs(){document.querySelectorAll('[data-k]').forEach(i=>i.value=S.fields[i.dataset.k]||'');$('boss').checked=S.boss;$('showQuote').checked=S.showQuote;$('showFacs').checked=S.showFacs;$('facsMode').value=S.facsMode;
+  const L=S.logo;$('logoColor').value=L.color;$('logoPos').value=L.pos;$('logoSize').value=L.size;$('logoOp').value=L.op;$('logoName').checked=L.name;$('footer').checked=S.footer;document.querySelectorAll('[data-bf]').forEach(x=>x.value=S.bfont[x.dataset.bf]);
+  $('logoSizeOut').textContent=L.size;$('logoOpOut').textContent=L.op+'%';$('logoUpWrap').hidden=L.color!=='custom';segs()}
+
+/* Examples */
+const DEMOS={mist:demo('mist'),snow:demo('snow'),night:demo('night')};
+const EXAMPLES=[
+  {label:'Wabi-sabi · Ofertă',img:'mist',style:'wabi',template:'oferta',fields:{title:'Weekend de toamnă în Apuseni',subtitle:'Cabana întreagă, doar pentru voi',period:'Octombrie – Noiembrie',offer:'Cabana întreagă · 8–12 persoane'},boss:false},
+  {label:'Iarnă · Facilități',img:'snow',style:'iarna',template:'facilitati',fields:{title:'Iarna la 2 km de pârtie',subtitle:'Mărișel · Munții Apuseni',period:'Decembrie – Martie',offer:''},boss:false},
+  {label:'Seară · Liniște + Boss',img:'night',style:'seara',template:'liniste',fields:{title:'Seri la PineRoots',quote:'Seara începe când se aprinde focul în ciubăr.',subtitle:'PineRoots, Mărișel'},boss:true}];
+function exCfg(ex){return{...S,lay:{},sel:null,style:ex.style,adj:{...STYLES[ex.style].adj},template:ex.template,fields:{...S.fields,...ex.fields},boss:ex.boss}}
+function buildExamples(){const box=$('examples');box.innerHTML='';EXAMPLES.forEach(ex=>{const b=document.createElement('button');b.type='button';b.className='ex';const c=document.createElement('canvas');
+  render(c,240,300,exCfg(ex),entry(DEMOS[ex.img],ex.img,'demo'),0,1);b.appendChild(c);const s=document.createElement('small');s.textContent=ex.label;b.appendChild(s);
+  b.onclick=()=>{const cfg=exCfg(ex);Object.assign(S,{style:cfg.style,adj:cfg.adj,template:cfg.template,fields:cfg.fields,boss:cfg.boss});
+    const i=S.images.findIndex(e=>e.name===ex.img);if(i>=0)S.active=i;buildStyles();buildSliders();buildTpls();syncInputs();refreshCaption(true);syncZoom();schedule();toast('Exemplu încărcat: '+ex.label)};box.appendChild(b)})}
+
+/* Upload */
+function readURL(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=()=>rej(r.error||new Error('read'));r.readAsDataURL(f)})}
+function imgFrom(url){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('decode'));i.src=url})}
+async function decodeFile(f){
+  if(window.createImageBitmap){try{return await createImageBitmap(f,{imageOrientation:'from-image'})}catch(e){try{return await createImageBitmap(f)}catch(e2){}}}
+  try{return await imgFrom(await readURL(f))}catch(e){}
+  return await imgFrom(URL.createObjectURL(f));
+}
+// downscale big phone photos so the page stays fast and phones don't run out of memory
+function shrink(src){const max=2400;const w=src.width||src.naturalWidth,h=src.height||src.naturalHeight;const sc=Math.min(1,max/Math.max(w,h));
+  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w*sc));c.height=Math.max(1,Math.round(h*sc));c.getContext('2d').drawImage(src,0,0,c.width,c.height);if(src.close)try{src.close()}catch(e){}return c}
+async function loadFiles(files){let ok=0,bad=[];const first=S.images.every(e=>e.demo);if(!files.length)return;toast('Se încarcă '+(files.length===1?'poza':files.length+' poze')+'…');
+  for(const f of files){
+    try{const img=shrink(await decodeFile(f));if(!img.width)throw new Error('empty');
+      if(first&&ok===0)S.images=[];S.images.push(entry(img,(f.name||'poza').replace(/\.[^.]+$/,'')));ok++}catch(e){console.warn('upload',f.name,f.type,e);bad.push(f.name||'poza')}}
+  if(ok){S.active=S.images.length-ok;syncZoom();schedule();toast(ok===1?'Poză adăugată':ok+' poze adăugate')}
+  if(bad.length)toast(/\.(heic|heif)$/i.test(bad[0])?'HEIC nu se poate citi în acest browser. Pe iPhone, alege „Cel mai compatibil" la Cameră → Formate sau exportă ca JPG.':'Nu am putut citi: '+bad.join(', '))}
+$('file').addEventListener('change',e=>{const fs=[...(e.target.files||[])];loadFiles(fs).finally(()=>{try{e.target.value=''}catch(x){}})});
+document.addEventListener('paste',e=>{const t=e.target;if(t&&(t.tagName==='TEXTAREA'||t.tagName==='INPUT'))return;const fs=[...((e.clipboardData&&e.clipboardData.files)||[])].filter(f=>/^image\//.test(f.type));if(fs.length){e.preventDefault();loadFiles(fs)}});
+['drop','frame'].forEach(id=>{const el=$(id);el.addEventListener('dragover',e=>{e.preventDefault();el.classList.add('drag')});el.addEventListener('dragleave',()=>el.classList.remove('drag'));
+  el.addEventListener('drop',e=>{e.preventDefault();el.classList.remove('drag');loadFiles([...e.dataTransfer.files])})});
+
+/* Drag to reframe */
+let dragS=null;
+function cpt(e){const r=prev.getBoundingClientRect();const sc=prev.width/r.width;return{x:(e.clientX-r.left)*sc,y:(e.clientY-r.top)*sc}}
+prev.tabIndex=0;
+prev.addEventListener('pointerdown',e=>{const p=cpt(e);const k=prev.width/1080;const bx=lastC?lastC.boxes:[];prev.setPointerCapture(e.pointerId);
+  if(S.sel){const b=bx.find(b=>b.key===S.sel);if(b&&Math.hypot(p.x-(b.x+b.w),p.y-(b.y+b.h))<34){dragS={mode:'size',p,s0:layOf(S.sel).s,c:{x:b.cx,y:b.cy}};return}}
+  for(let i=bx.length-1;i>=0;i--){const b=bx[i];if(p.x>=b.x&&p.x<=b.x+b.w&&p.y>=b.y&&p.y<=b.y+b.h){S.sel=b.key;const L=layOf(b.key);dragS={mode:'move',p,dx:L.dx,dy:L.dy,k};schedule();return}}
+  if(S.sel){S.sel=null;schedule()}
+  const en=S.images[S.active];if(!en)return;dragS={mode:'photo',x:e.clientX,y:e.clientY,cx:en.cx,cy:en.cy}});
+prev.addEventListener('pointermove',e=>{if(!dragS)return;
+  if(dragS.mode==='move'){const p=cpt(e);const L=layOf(S.sel);L.dx=dragS.dx+(p.x-dragS.p.x)/dragS.k;L.dy=dragS.dy+(p.y-dragS.p.y)/dragS.k;schedule();return}
+  if(dragS.mode==='size'){const p=cpt(e);const d0=Math.hypot(dragS.p.x-dragS.c.x,dragS.p.y-dragS.c.y)||1;const d=Math.hypot(p.x-dragS.c.x,p.y-dragS.c.y);layOf(S.sel).s=Math.min(3,Math.max(.3,dragS.s0*d/d0));schedule();return}
+  const en=S.images[S.active];const r=prev.getBoundingClientRect();const scale=prev.width/r.width;const lay=en._lay;if(!lay)return;
+  en.cx=Math.min(1,Math.max(0,dragS.cx-(e.clientX-dragS.x)*scale/lay.dw));en.cy=Math.min(1,Math.max(0,dragS.cy-(e.clientY-dragS.y)*scale/lay.dh));schedule()});
+prev.addEventListener('pointerup',()=>dragS=null);prev.addEventListener('pointercancel',()=>dragS=null);
+prev.addEventListener('wheel',e=>{if(!S.sel)return;e.preventDefault();const L=layOf(S.sel);L.s=Math.min(3,Math.max(.3,L.s*(e.deltaY<0?1.05:.95)));schedule()},{passive:false});
+prev.addEventListener('keydown',e=>{if(!S.sel)return;const d=e.shiftKey?10:2;const L=layOf(S.sel);const m={ArrowLeft:[-d,0],ArrowRight:[d,0],ArrowUp:[0,-d],ArrowDown:[0,d]}[e.key];
+  if(m){e.preventDefault();L.dx+=m[0];L.dy+=m[1];schedule()}else if(e.key==='Escape'){S.sel=null;schedule()}});
+$('elSize').oninput=e=>{if(!S.sel)return;layOf(S.sel).s=+e.target.value/100;$('elSizeOut').textContent=e.target.value+'%';schedule()};
+$('elHide').onclick=()=>{if(!S.sel)return;const L=layOf(S.sel);L.hide=!L.hide;schedule()};
+$('elReset').onclick=()=>{if(!S.sel)return;delete S.lay[LK(S.sel,S.template)];schedule()};
+const BRANDK={logo:'logo',handle:'handle',site:'site'};
+document.querySelectorAll('[data-bf]').forEach(sel=>{sel.innerHTML=Object.entries(FONTS).filter(([id])=>id!=='stil').map(([id,f])=>`<option value="${id}">${f.name}</option>`).join('');sel.value=S.bfont[sel.dataset.bf];
+  sel.onchange=()=>{const v=sel.value;S.bfont[sel.dataset.bf]=v;const f=FONTS[v];if(document.fonts)document.fonts.load(`${f.it?'italic ':''}${f.w} 40px ${f.fam}`).then(schedule).catch(()=>{});elSig='';schedule()}});
+$('elFont').innerHTML=Object.entries(FONTS).map(([id,f])=>`<option value="${id}">${f.name}</option>`).join('');
+$('elFont').onchange=e=>{if(!S.sel)return;let v=e.target.value;if(BRANDK[S.sel]){if(v==='stil')v='jostL';S.bfont[BRANDK[S.sel]]=v;syncInputs()}else layOf(S.sel).font=v;const f=FONTS[v];
+  if(f.fam&&document.fonts)document.fonts.load(`${f.it?'italic ':''}${f.w} 40px ${f.fam}`).then(schedule).catch(()=>{});schedule()};
+$('undo').onclick=undo;$('redo').onclick=redo;
+document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey))return;const t=e.target;if(t&&(t.tagName==='TEXTAREA'||(t.tagName==='INPUT'&&t.type==='text')))return;
+  const key=e.key.toLowerCase();if(key==='z'&&!e.shiftKey){e.preventDefault();undo()}else if(key==='y'||(key==='z'&&e.shiftKey)){e.preventDefault();redo()}});
+$('elResetAll').onclick=()=>{Object.keys(S.lay).forEach(k=>{if(k.startsWith(S.template+'.')||['logo','boss','handle','site'].includes(k))delete S.lay[k]});S.sel=null;schedule();toast('Layout resetat')};
+$('zoom').oninput=e=>{const en=S.images[S.active];if(en){en.zoom=+e.target.value}$('zoomOut').textContent=(+e.target.value).toFixed(2)+'×';schedule()};
+
+/* Inputs */
+document.querySelectorAll('[data-k]').forEach(i=>i.addEventListener('input',()=>{S.fields[i.dataset.k]=i.value;refreshCaption();schedule()}));
+$('boss').onchange=e=>{S.boss=e.target.checked;refreshCaption();schedule()};
+$('quote').addEventListener('input',()=>{const e=S.images[S.active];if(e)e.quote=$('quote').value;else S.fields.quote=$('quote').value;refreshCaption();schedule()});
+$('quoteAll').onclick=()=>{const v=$('quote').value;S.fields.quote=v;S.images.forEach(e=>e.quote=v);refreshCaption();schedule();toast('Citatul e pus pe toate pozele')};
+$('showQuote').onchange=e=>{S.showQuote=e.target.checked;refreshCaption();schedule()};
+$('showFacs').onchange=e=>{S.showFacs=e.target.checked;schedule()};
+$('facsMode').onchange=e=>{S.facsMode=e.target.value;if(!S.showFacs){S.showFacs=true;$('showFacs').checked=true}schedule()};
+$('logoColor').onchange=e=>{S.logo.color=e.target.value;$('logoUpWrap').hidden=e.target.value!=='custom';if(e.target.value==='custom'&&!S.logo.img)toast('Încarcă fișierul PNG cu logo-ul');schedule()};
+$('logoPos').onchange=e=>{S.logo.pos=e.target.value;schedule()};
+$('logoSize').oninput=e=>{S.logo.size=+e.target.value;$('logoSizeOut').textContent=e.target.value;schedule()};
+$('logoOp').oninput=e=>{S.logo.op=+e.target.value;$('logoOpOut').textContent=e.target.value+'%';schedule()};
+$('logoName').onchange=e=>{S.logo.name=e.target.checked;schedule()};
+$('footer').onchange=e=>{S.footer=e.target.checked;schedule()};
+$('logoFile').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{S.logo.img=i;S.logo.imgData=r.result;schedule()};i.src=r.result};r.readAsDataURL(f)};
+document.querySelectorAll('#formatSeg button').forEach(b=>b.onclick=()=>{S.format=b.dataset.f;segs();schedule()});
+document.querySelectorAll('#toneSeg button').forEach(b=>b.onclick=()=>{S.tone=b.dataset.t;segs();refreshCaption(true)});
+document.querySelectorAll('#langSeg button').forEach(b=>b.onclick=()=>{S.lang=b.dataset.l;segs();refreshCaption(true)});
+$('caption').addEventListener('input',()=>S.captionDirty=true);
+$('regen').onclick=()=>refreshCaption(true);
+$('resetAdj').onclick=()=>{S.adj={...STYLES[S.style].adj};buildSliders();schedule()};
+$('copy').onclick=async()=>{const t=$('caption').value;if(AND){try{AND.copyText(t);toast('Text copiat')}catch(e){toast('Nu am putut copia')}return}try{await navigator.clipboard.writeText(t);toast('Text copiat')}catch(e){$('caption').select();toast('Textul e selectat: apasă Ctrl+C / Copiază')}};
+
+/* Export */
+let DL=null;
+function fname(i,ext){const d=new Date().toISOString().slice(0,10);const sname=STYLES[S.style].name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  return `pineroots_${d}_${sname}_${S.template}${S.images.length>1?'_'+String(i+1).padStart(2,'0'):''}.${ext}`}
+function fullBlob(i,type){return new Promise(res=>{const [w,h]=FORMATS[S.format];const c=document.createElement('canvas');render(c,w,h,S,S.images[i],i,S.images.length);c.toBlob(res,type,.95)})}
+const AND=window.PRAndroid||null;
+function b64(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]||'');r.onerror=()=>rej(r.error);r.readAsDataURL(blob)})}
+async function save(blob,name){
+  if(AND){try{toast(AND.saveFile(await b64(blob),name,blob.type||'application/octet-stream'))}catch(e){toast('Nu am putut salva: '+(e&&e.message||e))}return}
+  if(DL){try{await DL.save({filename:name,data:blob});toast('Salvat: '+name)}catch(e){toast(e&&e.code==='declined'?'Descărcare anulată':'Nu am putut salva fișierul ('+(e&&e.code||'eroare')+')')}return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast('Descărcat: '+name)}
+$('dlJpg').onclick=async()=>{if(!S.images.length)return toast('Adaugă o poză întâi');save(await fullBlob(S.active,'image/jpeg'),fname(S.active,'jpg'))};
+$('dlPng').onclick=async()=>{if(!S.images.length)return toast('Adaugă o poză întâi');save(await fullBlob(S.active,'image/png'),fname(S.active,'png'))};
+$('dlZip').onclick=async()=>{if(!S.images.length)return toast('Adaugă poze întâi');if(!window.JSZip)return toast('Arhivarea nu s-a putut încărca');toast('Pregătesc arhiva…');
+  const z=new JSZip();for(let i=0;i<S.images.length;i++)z.file(fname(i,'jpg'),await fullBlob(i,'image/jpeg'));z.file('descriere.txt',$('caption').value);
+  const blob=await z.generateAsync({type:'blob'});const d=new Date().toISOString().slice(0,10);save(blob,`pineroots_${d}_${S.template}.zip`)};
+
+/* Presets */
+function renderPresets(){const list=ls('pr-presets')||[];const box=$('presets');box.innerHTML='';if(!list.length){box.innerHTML='<p class="note" style="margin:0">Niciun preset salvat încă.</p>';return}
+  list.forEach((p,i)=>{const d=document.createElement('div');d.className='preset';d.innerHTML=`<span>${p.name.replace(/[<>&]/g,'')}</span><span class="row"><button class="btn" type="button">Aplică</button><button class="btn" type="button" aria-label="Șterge presetul">Șterge</button></span>`;
+    const [ap,del]=d.querySelectorAll('button');ap.onclick=()=>{Object.assign(S,{style:p.style,adj:{...p.adj},template:p.template,format:p.format,footer:p.footer,lay:p.lay?JSON.parse(JSON.stringify(p.lay)):{},sel:null});if(p.bfont)S.bfont={...p.bfont};Object.assign(S.logo,p.logo);S.fields.handle=p.handle;S.fields.site=p.site;
+      if(p.logo.imgData){const im=new Image();im.onload=()=>{S.logo.img=im;schedule()};im.src=p.logo.imgData}buildStyles();buildSliders();buildTpls();syncInputs();refreshCaption();schedule();toast('Preset aplicat: '+p.name)};
+    del.onclick=()=>{list.splice(i,1);ls('pr-presets',list);renderPresets()};box.appendChild(d)})}
+$('savePreset').onclick=()=>{const name=$('presetName').value.trim()||(STYLES[S.style].name+' · '+TEMPLATES[S.template].name);const list=ls('pr-presets')||[];
+  const p={name,bfont:{...S.bfont},lay:JSON.parse(JSON.stringify(S.lay)),style:S.style,adj:{...S.adj},template:S.template,format:S.format,footer:S.footer,handle:S.fields.handle,site:S.fields.site,logo:{color:S.logo.color,pos:S.logo.pos,size:S.logo.size,op:S.logo.op,name:S.logo.name,imgData:S.logo.imgData}};
+  list.unshift(p);if(!ls('pr-presets',list)){p.logo.imgData=null;if(!ls('pr-presets',list))return toast('Browserul nu permite salvarea aici')}$('presetName').value='';renderPresets();toast('Preset salvat')};
+
+/* AI rewrite (only when available) */
+let SAMPLE=null;
+$('ai').onclick=async()=>{if(!SAMPLE)return;const b=$('ai');b.disabled=true;b.textContent='Se scrie…';
+  const F=S.fields;const prompt=`Ești copywriter pentru PineRoots, o cabană de închiriat în ${F.loc}, Munții Apuseni (estetică Japandi / wabi-sabi). Scrie o descriere de postare Instagram.
+Limbă: ${S.lang==='en'?'engleză':S.lang==='both'?'română, apoi aceeași descriere în engleză':'română'}. Ton: ${{calm:'calm, poetic',direct:'direct, orientat spre ofertă',family:'prietenos, pentru familii'}[S.tone]}. Stil vizual: ${STYLES[S.style].name}.
+Detalii: titlu "${F.title}"; subtitlu "${F.subtitle}"; ofertă "${F.offer}"; perioada "${F.period}"; facilități: ${FAC.filter(f=>S.facs.includes(f.id)).map(f=>f.ro).join(', ')}.${S.boss?' Menționează-l pe Boss, câinele cabanei.':''}
+Reguli: prima linie un hook scurt; 4–7 rânduri în total; 1–3 emoji discrete; CTA clar: rezervare directă pe ${F.site} (link în bio); nu inventa prețuri, reduceri sau premii. La final 15–20 hashtag-uri (locale ca #Marisel #MuntiiApuseni, de nișă ca #wabisabi #cabanadeinchiriat, de travel). Răspunde doar cu textul postării.`;
+  try{await SAMPLE(prompt,{cache:false,onText:({text})=>{$('caption').value=text}});S.captionDirty=true;$('capNote').textContent='Text rescris cu AI. Verifică-l înainte de publicare; „Generează din nou" revine la varianta din șabloane.'}
+  catch(e){toast(e&&e.code==='rate_limited'?'Prea multe cereri, încearcă peste un minut':'Rescrierea nu a reușit')}
+  b.disabled=false;b.textContent='Rescrie cu AI'};
+
+
+/* Android app bridge (inactive in the browser) */
+if(AND){
+  document.documentElement.classList.add('in-app');
+  $('dlZip').hidden=true;$('dlAll').hidden=false;$('shareIg').hidden=false;
+  $('drop').querySelector('strong').textContent='Alege poze din Galerie';$('drop').querySelector('small').textContent='Una sau mai multe (pentru carusel) · JPG, PNG, HEIC';
+  {const h=document.querySelector('.stage .hint');if(h)h.textContent='Atinge un text, logo-ul sau banda ca să le muți. Mărimea se schimbă din colțul chenarului sau din „Mărime element". Atinge poza în afara elementelor și trage ca să muți încadrarea.'}
+  $('dlAll').onclick=async()=>{if(!S.images.length)return toast('Adaugă poze întâi');toast('Salvez '+S.images.length+' imagini…');let ok=0;
+    for(let i=0;i<S.images.length;i++){try{AND.saveFile(await b64(await fullBlob(i,'image/jpeg')),fname(i,'jpg'),'image/jpeg');ok++}catch(e){}}
+    toast(ok===S.images.length?`${ok} imagini salvate în Galerie › Pictures/PineRoots`:`Salvate ${ok} din ${S.images.length}`)};
+  $('shareIg').onclick=async()=>{if(!S.images.length)return toast('Adaugă o poză întâi');const idx=S.images.length>1?S.images.map((_,i)=>i):[S.active];toast('Pregătesc '+(idx.length>1?idx.length+' imagini':'imaginea')+'…');
+    try{AND.shareBegin();for(const i of idx)AND.shareAdd(await b64(await fullBlob(i,'image/jpeg')),fname(i,'jpg'));toast(AND.shareCommit($('caption').value,shareTarget))}catch(e){toast('Nu am putut distribui: '+(e&&e.message||e))}};
+  let shareTarget='instagram';const shareIg=$('shareIg').onclick;$('shareIg').onclick=()=>{shareTarget='instagram';shareIg()};
+  $('shareAny').hidden=false;$('shareAny').onclick=()=>{shareTarget='any';shareIg()};
+  $('file').addEventListener('click',e=>{if(AND.pickImages){e.preventDefault();AND.pickImages()}});
+  let imp={ok:0,first:false},chain=Promise.resolve();
+  window.__prImportStart=n=>{chain=chain.then(()=>{imp={ok:0,first:S.images.every(e=>e.demo)};toast('Se încarcă '+(n===1?'poza':n+' poze')+'…')})};
+  window.__prImport=(dataUrl,name)=>{chain=chain.then(async()=>{try{const img=shrink(await imgFrom(dataUrl));if(imp.first&&imp.ok===0)S.images=[];S.images.push(entry(img,name||'poza'));imp.ok++;S.active=S.images.length-1;syncZoom();schedule()}catch(e){toast('Nu am putut citi '+(name||'poza'))}})};
+  window.__prImportEnd=(failed)=>{chain=chain.then(()=>{if(imp.ok)toast(imp.ok===1?'Poză adăugată':imp.ok+' poze adăugate');if(failed)setTimeout(()=>toast(failed+(failed===1?' poză nu a putut fi citită':' poze nu au putut fi citite')),2700)})};
+}
+/* Init */
+(function init(){
+  S.images=[entry(DEMOS.mist,'mist','demo'),entry(DEMOS.snow,'snow','demo'),entry(DEMOS.night,'night','demo')];
+  const m=$('mark');const mx=m.getContext('2d');drawSymbol(mx,6,8,64,'copper');
+  buildStyles();buildSliders();buildTpls();buildFacs();syncInputs();syncZoom();renderPresets();refreshCaption(true);draw();buildExamples();
+  if(document.fonts){Promise.all([document.fonts.load(`300 40px ${SERIF}`),document.fonts.load(`italic 300 40px ${SERIF}`),document.fonts.load(`italic 400 40px ${SERIF}`),document.fonts.load(`500 40px ${SERIF}`),document.fonts.load(`300 40px ${SANS}`),document.fonts.load(`400 40px ${SANS}`),document.fonts.load(`500 40px ${SANS}`),document.fonts.load('400 40px "Playfair Display"'),document.fonts.load('italic 400 40px "Playfair Display"'),document.fonts.load('500 40px Montserrat'),document.fonts.load('500 40px Caveat')]).then(()=>{draw();buildExamples()}).catch(()=>{})}
+  if(window.claude&&window.claude.use){
+    window.claude.use('downloads').then(d=>{DL=d}).catch(()=>{});
+    window.claude.use('sample').then(s=>{if(s){SAMPLE=s;$('ai').hidden=false}}).catch(()=>{});
+  }
+})();
+</script>
+</body></html>

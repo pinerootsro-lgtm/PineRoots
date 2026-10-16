@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'ro.pineroots.studio'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'ro.pineroots.studio'
+        minSdk 29
+        targetSdk 34
+        versionCode (System.getenv('GITHUB_RUN_NUMBER') ? System.getenv('GITHUB_RUN_NUMBER').toInteger() : 1)
+        versionName "1.0." + (System.getenv('GITHUB_RUN_NUMBER') ?: '0')
+    }
+
+    signingConfigs {
+        release {
+            // Keystore comes from the KEYSTORE_B64 secret in CI (decoded to app/release.jks),
+            // or from a local app/release.jks when building on your own computer.
+            storeFile file('release.jks')
+            storePassword System.getenv('KEYSTORE_PASSWORD') ?: 'pineroots-studio'
+            keyAlias 'pineroots'
+            keyPassword System.getenv('KEYSTORE_PASSWORD') ?: 'pineroots-studio'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    lint {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    androidResources {
+        noCompress 'woff2'
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+}

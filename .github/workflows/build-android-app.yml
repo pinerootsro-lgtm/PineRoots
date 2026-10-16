@@ -1,0 +1,71 @@
+name: PineRoots Studio – APK Android
+
+on:
+  push:
+    branches: [ android-app ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+
+      - name: Signing key
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          # A KEYSTORE_B64 secret, if you add one later, replaces the key stored in the repo.
+          if [ -n "$KEYSTORE_B64" ]; then echo "$KEYSTORE_B64" | base64 -d > studio-android/app/release.jks; fi
+          test -f studio-android/app/release.jks
+
+      - name: Build APK
+        working-directory: studio-android
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          set -o pipefail
+          gradle assembleRelease --no-daemon --stacktrace 2>&1 | tee ../build.log
+
+      - name: Rename APK
+        run: cp studio-android/app/build/outputs/apk/release/app-release.apk PineRoots-Studio.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PineRoots-Studio-apk
+          path: PineRoots-Studio.apk
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="studio-v1.0.${{ github.run_number }}"
+          gh release create "$TAG" PineRoots-Studio.apk \
+            --target "${{ github.sha }}" \
+            --title "PineRoots Studio 1.0.${{ github.run_number }}" \
+            --notes "Aplicația Android PineRoots Studio. Deschide această pagină pe telefon, apasă pe PineRoots-Studio.apk ca să-l descarci, apoi deschide fișierul ca să instalezi aplicația."
+
+      - name: Report a failed build
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="studio-build-failed-${{ github.run_number }}"
+          touch build.log
+          tail -c 60000 build.log > build-tail.log
+          gh release create "$TAG" build-tail.log \
+            --target "${{ github.sha }}" --prerelease \
+            --title "Compilare eșuată ${{ github.run_number }}" \
+            --notes "Jurnalul compilării e atașat (build-tail.log)."
