@@ -6,6 +6,10 @@ Pagina pe care o primesc oaspeții înainte de sosire: drumul, cutia cu cifru, p
 
 Codul cutiei nu e scris nicăieri în fișiere, pentru că tot ce e aici e public. Îl trimiți oaspeților în mesaj, iar pagina le spune să-l caute acolo.
 
+**Link în rusă:** https://pinerootsro-lgtm.github.io/PineRoots/?lang=ru
+
+Pagina are comutator RO / RU în antet. Dacă telefonul oaspetelui e setat în rusă, se deschide singură în rusă.
+
 ## Cum schimbi conținutul
 
 Tot textul stă în folderul `continut/`. Nu e nevoie să atingi `index.html`.
@@ -34,3 +38,9 @@ Reguli simple:
 - Pagina merge și fără semnal, dacă oaspetele a deschis-o măcar o dată înainte, de exemplu acasă.
 - Pagina are `noindex`, deci nu apare în Google.
 - Dacă vrei o adresă proprie (de ex. `sosire.pineroots.ro`), se setează din Settings → Pages → Custom domain. Atunci schimbă și cele două adrese `og:url` și `og:image` din `index.html`, care dau imaginea din previzualizarea WhatsApp.
+
+## Varianta în rusă
+
+Textele în rusă stau în `continut/ru/`, cu aceleași nume de fișiere. Când schimbi ceva în română, schimbă și fișierul corespunzător din `continut/ru/`.
+- Orele, Wi-Fi-ul, adresa și linkurile se iau doar din `continut/date.txt`, deci le schimbi o singură dată.
+- Dacă un text lipsește în rusă, pagina îl arată în română, ca să nu rămână gol.

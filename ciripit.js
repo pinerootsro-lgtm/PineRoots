@@ -166,11 +166,17 @@
   }
 
   function audible() { return playing && ctx && ctx.state === "running"; }
+  var LABELS = {
+    ro: { txt: "Ciripit", on: "Oprește ciripitul păsărilor", off: "Pornește ciripitul păsărilor" },
+    ru: { txt: "Птицы", on: "Выключить пение птиц", off: "Включить пение птиц" }
+  };
   function show() {
-    var on = audible();
+    var on = audible(), w = LABELS[window.PR_LANG] || LABELS.ro, txt = btn.querySelector(".birds-txt");
+    if (txt) txt.textContent = w.txt;
     btn.setAttribute("aria-pressed", on ? "true" : "false");
-    btn.setAttribute("aria-label", on ? "Oprește ciripitul păsărilor" : "Pornește ciripitul păsărilor");
+    btn.setAttribute("aria-label", on ? w.on : w.off);
   }
+  document.addEventListener("pr-lang", show);
 
   btn.hidden = false;
   show();

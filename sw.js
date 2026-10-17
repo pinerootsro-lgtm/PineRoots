@@ -1,7 +1,7 @@
 /* Keeps the arrival page readable without signal once a guest has opened it.
    Pages and text files: network first (so edits show up), cache when offline.
    Photos: cache first. The video is left to the network. */
-var CACHE = "pineroots-sosire-v2";
+var CACHE = "pineroots-sosire-v3";
 var CORE = [
   "./",
   "./index.html",
@@ -12,6 +12,12 @@ var CORE = [
   "./continut/drum.txt",
   "./continut/zona.txt",
   "./continut/restaurante.txt",
+  "./continut/ru/date.txt",
+  "./continut/ru/sosire.txt",
+  "./continut/ru/reguli.txt",
+  "./continut/ru/drum.txt",
+  "./continut/ru/zona.txt",
+  "./continut/ru/restaurante.txt",
   "./media/poarta-cutie.jpg",
   "./media/usa-cheie.jpg",
   "./media/poarta-poster.jpg"

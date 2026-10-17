@@ -59,6 +59,11 @@ button{font:inherit;color:inherit}
 .brand{display:flex;align-items:center;gap:14px}
 .mark{width:46px;height:46px;flex:none;color:var(--bronze)}
 .eyebrow .sep{margin-inline:.55em;color:var(--bronze)}
+.brand .eyebrow{flex:1 1 auto;min-width:0}
+.langs{flex:none}
+.langs{margin-left:auto;display:flex;gap:2px;padding:2px;border:1px solid var(--line);border-radius:999px;background:var(--paper)}
+.langs button{border:0;background:transparent;padding:5px 10px;border-radius:999px;font:500 12px/1 var(--f-mono);letter-spacing:.06em;color:var(--muted);cursor:pointer}
+.langs button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 h1{margin:0;font-family:var(--f-display);font-weight:300;font-size:clamp(2.6rem,9vw,4rem);line-height:1.02;letter-spacing:-.015em;text-wrap:balance}
 .lead{margin:0;max-width:33rem;font-size:1.08rem}
 .actions{display:flex;flex-wrap:wrap;gap:10px}
@@ -170,17 +175,68 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
   <noscript><p>Pentru această pagină e nevoie de JavaScript activat.</p></noscript>
 </div>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-<button type="button" id="birds" class="birds" aria-pressed="false" aria-label="Pornește ciripitul păsărilor" hidden><svg class="ico" viewBox="0 0 22 14" aria-hidden="true"><path d="M1 7.5c2-2.6 4.2-2.6 5.6 0 1.4-2.6 3.6-2.6 5.6 0M12.5 3.2c1.4-1.8 2.9-1.8 3.9 0 1-1.8 2.5-1.8 3.9 0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ciripit</span><span class="sw" aria-hidden="true"></span></button>
+<button type="button" id="birds" class="birds" aria-pressed="false" aria-label="Pornește ciripitul păsărilor" hidden><svg class="ico" viewBox="0 0 22 14" aria-hidden="true"><path d="M1 7.5c2-2.6 4.2-2.6 5.6 0 1.4-2.6 3.6-2.6 5.6 0M12.5 3.2c1.4-1.8 2.9-1.8 3.9 0 1-1.8 2.5-1.8 3.9 0" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="birds-txt">Ciripit</span><span class="sw" aria-hidden="true"></span></button>
 
 <script>
 (function(){
   "use strict";
   var COORDS = "46.6595° N · 23.0892° E";
   var FILES = ["date", "sosire", "reguli", "drum", "zona", "restaurante"];
+  var LANG_KEY = "pineroots-limba";
   var app = document.getElementById("app");
   var toastEl = document.getElementById("toast");
   var reduceMotion = false;
   try { reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  /* ---- interface words; the rest of the text comes from continut/ (romanian) and continut/ru/ (russian) ---- */
+  var STR = {
+    ro: {
+      title: "Sosire la PineRoots", region: "Mărișel, Munții Apuseni", h1: "Până la ușa cabanei",
+      maps: "Deschide în Google Maps", glance: "Pe scurt",
+      checkin: "Check-in, de la", checkout: "Check-out, până la",
+      code: "Cod cutie cu cifru", codeMsg: "Îl găsiți în mesajul nostru.", codeChip: "codul din mesaj", codeAria: "Cod",
+      wifiPass: "Parolă Wi-Fi", network: "Rețea", password: "Parolă", copy: "Copiază", copied: "Copiat",
+      selected: "Textul e selectat. Copiați-l din meniul telefonului.",
+      roadLbl: "Drumul", roadH: "Până la poartă", arrLbl: "Sosirea", arrH: "De la poartă la ușă",
+      img1: "Gardul de lemn de lângă poartă, cu cutia cu cifru sub plăcuța cu numărul 3",
+      vidAria: "Poarta deschizându-se spre exterior", vidCap: "Poarta se deschide spre exterior. Intrați după ce s-a oprit.",
+      img3: "Intrarea în cabană; o săgeată arată locul cheii, la grinda din dreapta ușii",
+      insideLbl: "Înăuntru", rulesLbl: "Regulile casei", rulesH: "Puține și simple",
+      zoneLbl: "Prin împrejurimi ☽︎", zoneH: "Ce puteți face în zonă",
+      foodLbl: "Unde mâncați ♨︎", foodH: "Mese în apropiere",
+      phone: "Telefon gazdă", call: "Sună", motto: "Nu perfect. Viu.",
+      loading: "Se încarcă…", failed: "Pagina nu s-a putut încărca. Verificați conexiunea și reîncărcați.", reload: "Reîncarcă",
+      langs: "Limba paginii"
+    },
+    ru: {
+      title: "Прибытие в PineRoots", region: "Мэришел, Апусенские горы", h1: "До самой двери домика",
+      maps: "Открыть в Google Maps", glance: "Коротко",
+      checkin: "Заезд с", checkout: "Выезд до",
+      code: "Код ключницы", codeMsg: "Он в нашем сообщении.", codeChip: "код из сообщения", codeAria: "Код",
+      wifiPass: "Пароль Wi-Fi", network: "Сеть", password: "Пароль", copy: "Копировать", copied: "Скопировано",
+      selected: "Текст выделен. Скопируйте его через меню телефона.",
+      roadLbl: "Дорога", roadH: "До ворот", arrLbl: "Прибытие", arrH: "От ворот до двери",
+      img1: "Деревянный забор у ворот, ключница под табличкой с номером 3",
+      vidAria: "Ворота открываются наружу", vidCap: "Ворота открываются наружу. Заезжайте, когда они остановятся.",
+      img3: "Вход в домик; стрелка показывает, где лежит ключ, у балки справа от двери",
+      insideLbl: "Внутри", rulesLbl: "Правила дома", rulesH: "Их немного, и они простые",
+      zoneLbl: "Окрестности ☽︎", zoneH: "Чем заняться поблизости",
+      foodLbl: "Где поесть ♨︎", foodH: "Рестораны рядом",
+      phone: "Телефон хозяина", call: "Позвонить", motto: "Не идеально. Живо.",
+      loading: "Загрузка…", failed: "Не удалось загрузить страницу. Проверьте соединение и обновите её.", reload: "Обновить",
+      langs: "Язык страницы"
+    }
+  };
+
+  function initialLang(){
+    var m = /[?&]lang=(ro|ru)\b/i.exec(location.search) || /^#(ro|ru)$/i.exec(location.hash);
+    if (m) return m[1].toLowerCase();
+    try { var s = localStorage.getItem(LANG_KEY); if (s === "ro" || s === "ru") return s; } catch (e) {}
+    var n = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+    return /^ru/i.test(n) ? "ru" : "ro";
+  }
+  var lang = initialLang();
+  var L = STR[lang];
 
   /* ---- parsing the simple text files ---- */
   function lines(txt){
@@ -219,6 +275,38 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
   /* The lockbox code is sent in the guest's message, never published here. Clear any code an older link stored. */
   try { localStorage.removeItem("pineroots-cod"); } catch (e) {}
 
+  /* ---- loading: romanian is the base; another language overrides what it has, the rest falls back to romanian ---- */
+  var cache = {};
+  function getText(path){
+    return fetch(path, { cache: "no-cache" }).then(function(r){
+      if (!r.ok) throw new Error(path);
+      return r.text();
+    });
+  }
+  function load(l){
+    if (cache[l]) return Promise.resolve(cache[l]);
+    var base = Promise.all(FILES.map(function(n){ return getText("continut/" + n + ".txt"); }));
+    var over = l === "ro" ? Promise.resolve([]) :
+      Promise.all(FILES.map(function(n){ return getText("continut/" + l + "/" + n + ".txt").catch(function(){ return null; }); }));
+    return Promise.all([base, over]).then(function(res){
+      var b = res[0], x = res[1];
+      function merged(i){
+        var o = kv(b[i]);
+        if (x[i]) { var y = kv(x[i]); Object.keys(y).forEach(function(k){ if (y[k]) o[k] = y[k]; }); }
+        return o;
+      }
+      function list(i, parse){
+        var v = x[i] ? parse(x[i]) : [];
+        return v.length ? v : parse(b[i]);
+      }
+      cache[l] = {
+        date: merged(0), sosire: merged(1), reguli: list(2, lines),
+        drum: list(3, rows), zona: list(4, rows), restaurante: list(5, rows)
+      };
+      return cache[l];
+    });
+  }
+
   function render(c){
     var D = c.date, S = c.sosire;
     var code = String(D["cod-cutie"] || "").replace(/\s+/g, "");
@@ -239,70 +327,74 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
     var phone = "";
     if (D["telefon"]) {
       var wa = waNumber(D["telefon"]);
-      phone = '<div class="phone"><span class="lbl" style="width:100%">Telefon gazdă</span><span class="num">' + esc(D["telefon"]) + "</span>" +
-        '<a class="btn" href="tel:' + esc(D["telefon"].replace(/[^\d+]/g, "")) + '">Sună</a>' +
+      phone = '<div class="phone"><span class="lbl" style="width:100%">' + L.phone + '</span><span class="num">' + esc(D["telefon"]) + "</span>" +
+        '<a class="btn" href="tel:' + esc(D["telefon"].replace(/[^\d+]/g, "")) + '">' + L.call + "</a>" +
         (wa ? '<a class="btn" href="https://wa.me/' + esc(wa) + '" target="_blank" rel="noopener">WhatsApp</a>' : "") + "</div>";
     }
+    var langs = '<div class="langs" role="group" aria-label="' + L.langs + '">' +
+      ["ro", "ru"].map(function(l){
+        return '<button type="button" data-lang="' + l + '" lang="' + l + '" aria-pressed="' + (l === lang) + '">' + l.toUpperCase() + "</button>";
+      }).join("") + "</div>";
 
     app.innerHTML =
       '<header class="hero">' +
-        '<div class="brand"><svg class="mark" viewBox="134 54 432 432" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="butt"><path d="M350,64 L556,270 L350,476 L144,270 Z M366,315 L418,273 L494,332 M418,273 V408 M258,383 L347,327 M350,146 V476" stroke-linejoin="miter"/><path d="M304,212 Q335.2,184.7 350,146 Q365.9,184.9 398,212 M350,210 Q331.8,244.3 299,265 M350,209 Q376.6,234.8 407,256 M350,264 Q323.2,299.2 288,326 M350,259 Q367.5,271.7 387,281" stroke-linejoin="round"/></g></svg><p class="eyebrow">PineRoots<span class="sep" aria-hidden="true">·</span>Mărișel, Munții Apuseni</p></div>' +
-        "<h1>Până la ușa cabanei</h1>" +
+        '<div class="brand"><svg class="mark" viewBox="134 54 432 432" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="13" stroke-linecap="butt"><path d="M350,64 L556,270 L350,476 L144,270 Z M366,315 L418,273 L494,332 M418,273 V408 M258,383 L347,327 M350,146 V476" stroke-linejoin="miter"/><path d="M304,212 Q335.2,184.7 350,146 Q365.9,184.9 398,212 M350,210 Q331.8,244.3 299,265 M350,209 Q376.6,234.8 407,256 M350,264 Q323.2,299.2 288,326 M350,259 Q367.5,271.7 387,281" stroke-linejoin="round"/></g></svg><p class="eyebrow">PineRoots<span class="sep" aria-hidden="true">·</span>' + L.region + "</p>" + langs + "</div>" +
+        "<h1>" + L.h1 + "</h1>" +
         (S.intro ? '<p class="lead">' + t("intro") + "</p>" : "") +
         '<div class="actions">' +
-          '<a class="btn primary" href="' + esc(safeUrl(D["google-maps"])) + '" target="_blank" rel="noopener">Deschide în Google Maps</a>' +
+          '<a class="btn primary" href="' + esc(safeUrl(D["google-maps"])) + '" target="_blank" rel="noopener">' + L.maps + "</a>" +
           '<a class="btn" href="' + esc(safeUrl(D["waze"])) + '" target="_blank" rel="noopener">Waze</a>' +
         "</div>" +
         '<p class="addr"><span>' + esc(D["adresa"]) + '</span><span class="coords">' + COORDS + "</span></p>" +
       "</header>" +
 
-      '<section class="glance" aria-label="Pe scurt">' +
-        '<div class="cell"><span class="lbl">Check-in, de la</span><span class="val">' + esc(D["check-in"]) + "</span>" + (D["check-in-nota"] ? '<span class="sub">' + esc(D["check-in-nota"]) + "</span>" : "") + "</div>" +
-        '<div class="cell"><span class="lbl">Check-out, până la</span><span class="val">' + esc(D["check-out"]) + "</span></div>" +
-        '<div class="cell wide"><span class="lbl">Cod cutie cu cifru</span>' + (code ? '<span class="dial" aria-label="Cod ' + esc(code) + '">' + dial(code) + "</span>" : '<span class="sub">Îl găsiți în mesajul nostru.</span>') + "</div>" +
-        '<div class="cell wide"><span class="lbl">Parolă Wi-Fi</span><span class="val">' + esc(D["wifi-parola"]) + '</span><button type="button" class="copy" data-copy="' + esc(D["wifi-parola"]) + '">Copiază</button></div>' +
+      '<section class="glance" aria-label="' + L.glance + '">' +
+        '<div class="cell"><span class="lbl">' + L.checkin + '</span><span class="val">' + esc(D["check-in"]) + "</span>" + (D["check-in-nota"] ? '<span class="sub">' + esc(D["check-in-nota"]) + "</span>" : "") + "</div>" +
+        '<div class="cell"><span class="lbl">' + L.checkout + '</span><span class="val">' + esc(D["check-out"]) + "</span></div>" +
+        '<div class="cell wide"><span class="lbl">' + L.code + "</span>" + (code ? '<span class="dial" aria-label="' + L.codeAria + " " + esc(code) + '">' + dial(code) + "</span>" : '<span class="sub">' + L.codeMsg + "</span>") + "</div>" +
+        '<div class="cell wide"><span class="lbl">' + L.wifiPass + '</span><span class="val">' + esc(D["wifi-parola"]) + '</span><button type="button" class="copy" data-copy="' + esc(D["wifi-parola"]) + '">' + L.copy + "</button></div>" +
       "</section>" +
 
       '<section class="block" id="drum">' +
-        '<div class="block-head"><span class="lbl">Drumul</span><h2>Până la poartă</h2></div>' +
+        '<div class="block-head"><span class="lbl">' + L.roadLbl + "</span><h2>" + L.roadH + "</h2></div>" +
         '<dl class="route">' + route + "</dl>" +
       "</section>" +
 
       '<section class="block" id="sosire">' +
-        '<div class="block-head"><span class="lbl">Sosirea</span><h2>De la poartă la ușă</h2></div>' +
+        '<div class="block-head"><span class="lbl">' + L.arrLbl + "</span><h2>" + L.arrH + "</h2></div>" +
         '<ol class="path">' +
           '<li class="step"><span class="node" aria-hidden="true">1</span><div class="step-body">' +
             "<h3>" + t("pas1-titlu") + "</h3><p>" + t("pas1-text") + "</p>" +
-            '<figure class="photo"><img src="media/poarta-cutie.jpg" width="900" height="840" alt="Gardul de lemn de lângă poartă, cu cutia cu cifru sub plăcuța cu numărul 3" loading="lazy"><span class="codechip' + (code ? "" : " none") + '" aria-hidden="true">' + (code ? esc(code) : "codul din mesaj") + "</span></figure>" +
+            '<figure class="photo"><img src="media/poarta-cutie.jpg" width="900" height="840" alt="' + L.img1 + '" loading="lazy"><span class="codechip' + (code ? "" : " none") + '" aria-hidden="true">' + (code ? esc(code) : L.codeChip) + "</span></figure>" +
           "</div></li>" +
           '<li class="step"><span class="node" aria-hidden="true">2</span><div class="step-body">' +
             "<h3>" + t("pas2-titlu") + "</h3><p>" + t("pas2-text") + "</p>" +
             '<div class="lampnote"><span class="lamp" aria-hidden="true"></span><div><strong>' + t("pas2-asteptati") + '</strong><span class="why">' + t("pas2-de-ce") + "</span></div></div>" +
-            '<figure class="vid"><video src="media/poarta.mp4" poster="media/poarta-poster.jpg" muted playsinline loop controls preload="metadata"' + (reduceMotion ? "" : " autoplay") + ' aria-label="Poarta deschizându-se spre exterior"></video><figcaption>Poarta se deschide spre exterior. Intrați după ce s-a oprit.</figcaption></figure>' +
+            '<figure class="vid"><video src="media/poarta.mp4" poster="media/poarta-poster.jpg" muted playsinline loop controls preload="metadata"' + (reduceMotion ? "" : " autoplay") + ' aria-label="' + L.vidAria + '"></video><figcaption>' + L.vidCap + "</figcaption></figure>" +
             '<div class="ifclose"><span class="t">' + t("pas2-daca-titlu") + "</span><ul><li>" + t("pas2-daca-1") + "</li><li>" + t("pas2-daca-2") + "</li></ul></div>" +
             (S["pas2-plecare"] ? '<p class="exit">' + t("pas2-plecare") + "</p>" : "") +
           "</div></li>" +
           '<li class="step"><span class="node" aria-hidden="true">3</span><div class="step-body">' +
             "<h3>" + t("pas3-titlu") + "</h3><p>" + t("pas3-text") + "</p>" +
-            '<figure class="photo"><img src="media/usa-cheie.jpg" width="900" height="960" alt="Intrarea în cabană; o săgeată arată locul cheii, la grinda din dreapta ușii" loading="lazy"></figure>' +
+            '<figure class="photo"><img src="media/usa-cheie.jpg" width="900" height="960" alt="' + L.img3 + '" loading="lazy"></figure>' +
           "</div></li>" +
         "</ol>" +
       "</section>" +
 
       '<section class="block" id="wifi">' +
-        '<div class="block-head"><span class="lbl">Înăuntru</span><h2>Wi-Fi</h2></div>' +
+        '<div class="block-head"><span class="lbl">' + L.insideLbl + "</span><h2>Wi-Fi</h2></div>" +
         '<div class="wifi">' +
-          '<div class="cell"><span class="lbl">Rețea</span><span class="val">' + esc(D["wifi-retea"]) + "</span></div>" +
-          '<div class="cell"><span class="lbl">Parolă</span><span class="val">' + esc(D["wifi-parola"]) + '</span><button type="button" class="copy" data-copy="' + esc(D["wifi-parola"]) + '">Copiază</button></div>' +
+          '<div class="cell"><span class="lbl">' + L.network + '</span><span class="val">' + esc(D["wifi-retea"]) + "</span></div>" +
+          '<div class="cell"><span class="lbl">' + L.password + '</span><span class="val">' + esc(D["wifi-parola"]) + '</span><button type="button" class="copy" data-copy="' + esc(D["wifi-parola"]) + '">' + L.copy + "</button></div>" +
         "</div>" + (D["wifi-nota"] ? '<p class="wifi-note">' + esc(D["wifi-nota"]) + "</p>" : "") +
       "</section>" +
 
-      (rules ? '<section class="block" id="reguli"><div class="block-head"><span class="lbl">Regulile casei</span><h2>Puține și simple</h2></div><ul class="rules">' + rules + "</ul></section>" : "") +
-      (c.zona.length ? '<section class="block" id="zona"><div class="block-head"><span class="lbl">Prin împrejurimi ☽︎</span><h2>Ce puteți face în zonă</h2></div><ul class="places">' + places(c.zona) + "</ul></section>" : "") +
-      (c.restaurante.length ? '<section class="block" id="masa"><div class="block-head"><span class="lbl">Unde mâncați ♨︎</span><h2>Mese în apropiere</h2></div><ul class="places">' + places(c.restaurante) + "</ul></section>" : "") +
+      (rules ? '<section class="block" id="reguli"><div class="block-head"><span class="lbl">' + L.rulesLbl + "</span><h2>" + L.rulesH + '</h2></div><ul class="rules">' + rules + "</ul></section>" : "") +
+      (c.zona.length ? '<section class="block" id="zona"><div class="block-head"><span class="lbl">' + L.zoneLbl + "</span><h2>" + L.zoneH + '</h2></div><ul class="places">' + places(c.zona) + "</ul></section>" : "") +
+      (c.restaurante.length ? '<section class="block" id="masa"><div class="block-head"><span class="lbl">' + L.foodLbl + "</span><h2>" + L.foodH + '</h2></div><ul class="places">' + places(c.restaurante) + "</ul></section>" : "") +
 
       '<section class="outro">' + (S.final ? "<p>" + t("final") + "</p>" : "") + phone + "</section>" +
-      '<footer><span class="motto">Nu perfect. Viu.</span><span>PineRoots · ' + esc(D["adresa"]) + "</span></footer>";
+      '<footer><span class="motto">' + L.motto + "</span><span>PineRoots · " + esc(D["adresa"]) + "</span></footer>";
   }
 
   function toast(text){
@@ -312,17 +404,49 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
     toast.timer = setTimeout(function(){ toastEl.hidden = true; }, 3200);
   }
 
+  function show(l){
+    return load(l).then(render).catch(function(){
+      app.innerHTML = '<div class="state"><p>' + L.failed + '</p><p><button type="button" class="btn" onclick="location.reload()">' + L.reload + "</button></p></div>";
+    });
+  }
+
+  function applyLang(l, remember){
+    lang = l; L = STR[l];
+    window.PR_LANG = l;
+    document.documentElement.lang = l;
+    document.title = L.title;
+    if (remember) {
+      try { localStorage.setItem(LANG_KEY, l); } catch (e) {}
+      try {
+        var params = location.search.replace(/^\?/, "").split("&").filter(function(p){ return p && !/^lang=/i.test(p); });
+        params.push("lang=" + l);
+        history.replaceState(null, "", location.pathname + "?" + params.join("&") + location.hash);
+      } catch (e) {}
+    }
+    try { document.dispatchEvent(new CustomEvent("pr-lang", { detail: l })); } catch (e) {}
+  }
+
   app.addEventListener("click", function(e){
+    var lb = e.target.closest("[data-lang]");
+    if (lb) {
+      var l = lb.getAttribute("data-lang");
+      if (l !== lang && STR[l]) {
+        var y = window.scrollY;
+        applyLang(l, true);
+        show(l).then(function(){ window.scrollTo(0, y); });
+      }
+      return;
+    }
     var b = e.target.closest("[data-copy]");
     if (!b) return;
     var text = b.getAttribute("data-copy");
-    var done = function(){ var o = b.textContent; b.textContent = "Copiat"; setTimeout(function(){ b.textContent = o; }, 1600); };
+    var done = function(){ var o = b.textContent; b.textContent = L.copied; setTimeout(function(){ b.textContent = o; }, 1600); };
     var fallback = function(){
       var v = b.parentNode.querySelector(".val");
       if (!v) return;
       var r = document.createRange(); r.selectNodeContents(v);
       var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
-      toast("Textul e selectat. Copiați-l din meniul telefonului.");
+      toast(L.selected);
     };
     try {
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, fallback);
@@ -330,19 +454,10 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
     } catch (err) { fallback(); }
   });
 
-  Promise.all(FILES.map(function(name){
-    return fetch("continut/" + name + ".txt", { cache: "no-cache" }).then(function(r){
-      if (!r.ok) throw new Error(name);
-      return r.text();
-    });
-  })).then(function(txt){
-    render({
-      date: kv(txt[0]), sosire: kv(txt[1]), reguli: lines(txt[2]),
-      drum: rows(txt[3]), zona: rows(txt[4]), restaurante: rows(txt[5])
-    });
-  }).catch(function(){
-    app.innerHTML = '<div class="state"><p>Pagina nu s-a putut încărca. Verificați conexiunea și reîncărcați.</p><p><button type="button" class="btn" onclick="location.reload()">Reîncarcă</button></p></div>';
-  });
+  applyLang(lang, false);
+  var loadingEl = app.querySelector(".state");
+  if (loadingEl) loadingEl.textContent = L.loading;
+  show(lang);
 
   /* keep the page available offline once it has been opened */
   if ("serviceWorker" in navigator && location.protocol === "https:") {

@@ -1,0 +1,9 @@
+# UNDE MÂNCAȚI, ÎN RUSĂ
+# Format: Nume | Unde | Descriere  (un rând = un restaurant)
+
+Cabana Moților | Mărișel | Суп дня, горная атмосфера и красивый вид.
+Popasul Iancului | Mărișel | Румынская кухня, от завтрака до ужина. Подходит и для больших компаний.
+După Ski la wU | Mărișel | Небольшое заведение, чтобы быстро поесть.
+Colț de Rai | Beliș | Терраса и беседка с видом. Трансильванская кухня из местных продуктов.
+Tamas Bistro | Săvădisla | Славится гуляшом и папанашами (румынские пончики со сметаной и вареньем).
+Gasthaus Spath | Șăndulești | Большие порции, разумные цены.

@@ -1,0 +1,7 @@
+# DATE ÎN RUSĂ
+# Aici stau doar textele care se traduc. Orele, Wi-Fi-ul, adresa și linkurile
+# se iau din continut/date.txt (româna), ca să nu le schimbi de două ori.
+# Format: cheie: text
+
+check-in-nota: Нужно другое время? Договоримся.
+wifi-nota: Сетей несколько. Можно подключиться к любой, в названии которой есть «PineHills».
