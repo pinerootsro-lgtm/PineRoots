@@ -28,7 +28,7 @@
 
   function setup() {
     ctx = new AC();
-    ctx.onstatechange = show;
+    ctx.onstatechange = function () { show(); if (ctx.state === "running") detach(); };
     master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
     dryBus = ctx.createGain(); dryBus.connect(master);
     verb = ctx.createConvolver(); verb.buffer = impulse(2.4, 3.2);
@@ -199,6 +199,10 @@
     if (r && r.then) r.then(function () { if (ctx.state === "running") detach(); }, function () {});
   }
   if (pref() !== "off") EVENTS.forEach(function (n) { window.addEventListener(n, firstGesture, true); });
+
+  /* try to start as soon as the page loads; where the browser allows sound without a touch it plays right away,
+     elsewhere it stays silent and starts at the first touch */
+  if (pref() !== "off") { try { start(); } catch (e) {} }
 
   /* quiet when the guest switches apps or tabs */
   document.addEventListener("visibilitychange", function () {
