@@ -6,6 +6,8 @@ Pagina pe care o primesc oaspeții înainte de sosire: drumul, cutia cu cifru, p
 
 Codul cutiei nu e scris nicăieri în fișiere, pentru că tot ce e aici e public. Îl trimiți oaspeților în mesaj, iar pagina le spune să-l caute acolo.
 
+**Link direct la secțiunea despre căldură:** https://pinerootsro-lgtm.github.io/PineRoots/#caldura (în rusă: `?lang=ru#caldura`)
+
 **Link în rusă:** https://pinerootsro-lgtm.github.io/PineRoots/?lang=ru
 
 Pagina are comutator RO / RU în antet. Dacă telefonul oaspetelui e setat în rusă, se deschide singură în rusă.
@@ -22,6 +24,7 @@ Tot textul stă în folderul `continut/`. Nu e nevoie să atingi `index.html`.
 | Drumul până la poartă | `continut/drum.txt` |
 | Ce puteți face în zonă | `continut/zona.txt` |
 | Restaurante | `continut/restaurante.txt` |
+| Căldura: centrala, apa caldă, termostatele, peleții | `continut/caldura.txt` |
 
 Pași, pe telefon sau pe calculator:
 1. Deschide fișierul pe github.com/pinerootsro-lgtm/PineRoots.

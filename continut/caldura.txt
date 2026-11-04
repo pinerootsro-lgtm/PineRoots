@@ -1,0 +1,44 @@
+# CUM MENȚINEM CABANA MEREU CALDĂ
+# Format: cheie: text. Fiecare text stă pe un singur rând.
+# Schimbi doar ce e după primele „:”. Nu modifica numele din stânga.
+# Varianta în rusă e în continut/ru/caldura.txt.
+
+intro: Centrala termică merge pe peleți și e automatizată. În 90% din cazuri funcționează singură, iar peleții din rezervor ajung pentru căldură și apă caldă timp de 2 zile.
+
+# Cele 4 căsuțe de sus. Format: Titlu | Valoare
+fapt-1: Centrala | pe peleți, automată
+fapt-2: Peleții ajung | 2 zile
+fapt-3: După pornire | max. 20 min
+fapt-4: Boiler | 200 l · 60 °C
+
+oprita-titlu: Dacă centrala s-a oprit
+oprita-text: La munte se mai întâmplă pene de curent. Ele pot întrerupe legătura online dintre centrală și administratorul cabanei, iar atunci s-ar putea să fie nevoie s-o porniți manual. Stați fără griji, e simplu.
+
+cheie-titlu: Cheia de la anexă
+cheie-text: Centrala e în anexă. Cheia o găsiți în locul arătat de săgeată, lângă grinda din stânga ușii de la intrare.
+
+pornire-titlu: Porniți centrala
+pornire-1: Apăsați butonul de pornire din stânga jos a ecranului centralei.
+pornire-2: Glisați bara „Glisați pentru a porni”.
+pornire-3: Pe ecran apare „CHECK UP”: centrala a pornit.
+pornire-video: Pornirea manuală a centralei.
+
+asteptati-titlu: Așteptați puțin
+asteptati-text: În maximum 20 de minute aveți apă caldă, iar casa începe să se încălzească.
+
+apa-titlu: Apa caldă
+apa-text: Apa caldă vine dintr-un boiler de 200 de litri, setat la 60 °C. Ajunge pentru 8 persoane × 7 minute de duș cald la 45 °C.
+apa-gol: Dacă totuși se termină apa caldă, stați fără griji: cei 200 de litri se încălzesc din nou în 10–15 minute. Anunțați-i doar pe cei cu care sunteți cazați să mai zăbovească câteva minute la o discuție caldă cu prietenii sau la un ceai :)
+
+termostate-titlu: Termostatele
+termostate-text: În casă sunt două termostate, setate de obicei la 20 °C. Uneori oaspeții de dinainte schimbă temperatura, așa că vă recomandăm să vă setați temperatura confortabilă imediat după cazare.
+termostat-parter: Parter: în nișa cu rafturi din perete
+termostat-mansarda: Mansardă: pe geamul din hol, deasupra scărilor
+termostate-sfat: Între dormitoare există mici diferențe de temperatură. De aceea, termostatul din hol e bine să rămână în jur de 20 °C: așa nu riscați să fie prea cald sau prea rece în dormitoare.
+
+peleti-titlu: În zilele foarte geroase
+peleti-text: S-ar putea să fie nevoie să mai adăugați peleți. E simplu:
+peleti-1: Deschideți capacul rezervorului de peleți.
+peleti-2: Turnați peleții din sacii pregătiți, până se umple rezervorul.
+peleti-3: Închideți capacul. Atât.
+peleti-video: Cum deschideți și închideți rezervorul de peleți.

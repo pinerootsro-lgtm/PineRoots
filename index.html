@@ -165,6 +165,31 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
 .birds .sw::after{content:"";position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:var(--muted);transition:transform .2s,background-color .2s}
 .birds[aria-pressed="true"] .sw{background:var(--bronze);border-color:var(--bronze)}
 .birds[aria-pressed="true"] .sw::after{transform:translateX(12px);background:var(--paper)}
+/* section picker */
+.secnav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;margin:28px -20px 0;padding:10px 20px;background:var(--paper);border-bottom:1px solid var(--line)}
+.secnav-in{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.secnav-in::-webkit-scrollbar{display:none}
+.secnav a{flex:none;padding:7px 13px;border:1px solid var(--line);border-radius:999px;text-decoration:none;font-size:13.5px;font-weight:500;color:var(--ink);white-space:nowrap;background:var(--paper)}
+.secnav a:hover{border-color:var(--muted)}
+.secnav a.on{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+section.block{scroll-margin-top:76px}
+
+/* heating */
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.facts .val{font-family:var(--f-body);font-size:1.05rem;font-weight:600}
+@media (min-width:720px){.facts{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.sub{display:grid;gap:14px;padding-top:30px;border-top:1px solid var(--line)}
+.sub > p{margin:0;max-width:34rem}
+.sub .path{margin-top:8px}
+.step-body h4{margin:0;font-family:var(--f-display);font-weight:400;font-size:1.3rem;line-height:1.2}
+ol.mini{margin:0;padding-left:1.4rem;display:grid;gap:6px;max-width:34rem}
+ol.mini li{padding-left:4px}
+ol.mini li::marker{font-family:var(--f-mono);font-size:.9em;color:var(--bronze)}
+.note{margin:0;max-width:34rem;padding:14px 16px;border-radius:10px;background:var(--panel)}
+.thermos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:34rem}
+.thermos figure{margin:0;max-width:none}
+.thermos img{display:block;width:100%;height:auto;aspect-ratio:1/1;object-fit:cover;border-radius:8px;background:var(--panel)}
+@media (prefers-reduced-motion: no-preference){html{scroll-behavior:smooth}}
 @media (prefers-reduced-motion: reduce){.lamp{animation:none}.birds .sw,.birds .sw::after{transition:none}}
 </style>
 </head>
@@ -181,7 +206,7 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
 (function(){
   "use strict";
   var COORDS = "46.6595° N · 23.0892° E";
-  var FILES = ["date", "sosire", "reguli", "drum", "zona", "restaurante"];
+  var FILES = ["date", "sosire", "reguli", "drum", "zona", "restaurante", "caldura"];
   var LANG_KEY = "pineroots-limba";
   var app = document.getElementById("app");
   var toastEl = document.getElementById("toast");
@@ -206,7 +231,13 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
       foodLbl: "Unde mâncați ♨︎", foodH: "Mese în apropiere",
       phone: "Telefon gazdă", call: "Sună", motto: "Nu perfect. Viu.",
       loading: "Se încarcă…", failed: "Pagina nu s-a putut încărca. Verificați conexiunea și reîncărcați.", reload: "Reîncarcă",
-      langs: "Limba paginii"
+      langs: "Limba paginii",
+      navAria: "Alege secțiunea", navRoad: "Drumul", navArrive: "Sosirea", navHeat: "Căldura", navRules: "Regulile",
+      navZone: "Zona", navFood: "Unde mâncați",
+      heatLbl: "Căldură și apă caldă", heatH: "Cum menținem cabana mereu caldă",
+      annexAlt: "Intrarea în cabană; săgeata arată locul cheii de la anexă, lângă grinda din stânga ușii",
+      groundAlt: "Termostatul de la parter, în nișa cu rafturi din perete",
+      atticAlt: "Termostatul de la mansardă, pe geamul din hol, deasupra scărilor"
     },
     ru: {
       title: "Прибытие в PineRoots", region: "Мэришел, Апусенские горы", h1: "До самой двери домика",
@@ -224,7 +255,13 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
       foodLbl: "Где поесть ♨︎", foodH: "Рестораны рядом",
       phone: "Телефон хозяина", call: "Позвонить", motto: "Не идеально. Живо.",
       loading: "Загрузка…", failed: "Не удалось загрузить страницу. Проверьте соединение и обновите её.", reload: "Обновить",
-      langs: "Язык страницы"
+      langs: "Язык страницы",
+      navAria: "Выберите раздел", navRoad: "Дорога", navArrive: "Прибытие", navHeat: "Тепло", navRules: "Правила",
+      navZone: "Окрестности", navFood: "Где поесть",
+      heatLbl: "Тепло и горячая вода", heatH: "Как мы поддерживаем тепло в доме",
+      annexAlt: "Вход в дом; стрелка показывает, где лежит ключ от пристройки, у балки слева от двери",
+      groundAlt: "Термостат на первом этаже, в нише с полками в стене",
+      atticAlt: "Термостат на мансарде, на окне в холле над лестницей"
     }
   };
 
@@ -285,7 +322,10 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
   }
   function load(l){
     if (cache[l]) return Promise.resolve(cache[l]);
-    var base = Promise.all(FILES.map(function(n){ return getText("continut/" + n + ".txt"); }));
+    var base = Promise.all(FILES.map(function(n){
+      var f = getText("continut/" + n + ".txt");
+      return n === "caldura" ? f.catch(function(){ return ""; }) : f;
+    }));
     var over = l === "ro" ? Promise.resolve([]) :
       Promise.all(FILES.map(function(n){ return getText("continut/" + l + "/" + n + ".txt").catch(function(){ return null; }); }));
     return Promise.all([base, over]).then(function(res){
@@ -301,7 +341,8 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
       }
       cache[l] = {
         date: merged(0), sosire: merged(1), reguli: list(2, lines),
-        drum: list(3, rows), zona: list(4, rows), restaurante: list(5, rows)
+        drum: list(3, rows), zona: list(4, rows), restaurante: list(5, rows),
+        caldura: merged(6)
       };
       return cache[l];
     });
@@ -331,6 +372,51 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
         '<a class="btn" href="tel:' + esc(D["telefon"].replace(/[^\d+]/g, "")) + '">' + L.call + "</a>" +
         (wa ? '<a class="btn" href="https://wa.me/' + esc(wa) + '" target="_blank" rel="noopener">WhatsApp</a>' : "") + "</div>";
     }
+    var H = c.caldura || {};
+    var h = function(k){ return esc(H[k] || ""); };
+    function li(k){ return H[k] ? "<li>" + h(k) + "</li>" : ""; }
+    function step(n, title, body){
+      return '<li class="step"><span class="node" aria-hidden="true">' + n + '</span><div class="step-body"><h4>' + title + "</h4>" + body + "</div></li>";
+    }
+    function clip(src, poster, caption){
+      return '<figure class="vid"><video src="' + src + '" poster="' + poster + '" muted playsinline loop controls preload="metadata"' + (reduceMotion ? "" : " autoplay") + ' aria-label="' + caption + '"></video><figcaption>' + caption + "</figcaption></figure>";
+    }
+    var facts = [1, 2, 3, 4].map(function(i){
+      var f = String(H["fapt-" + i] || "").split("|");
+      if (!f[0].trim()) return "";
+      return '<div class="cell"><span class="lbl">' + esc(f[0].trim()) + '</span><span class="val">' + esc((f[1] || "").trim()) + "</span></div>";
+    }).join("");
+    var heat = !H.intro ? "" :
+      '<section class="block" id="caldura">' +
+        '<div class="block-head"><span class="lbl">' + L.heatLbl + "</span><h2>" + L.heatH + "</h2></div>" +
+        '<p class="lead">' + h("intro") + "</p>" +
+        (facts ? '<div class="facts">' + facts + "</div>" : "") +
+        '<div class="sub"><h3>' + h("oprita-titlu") + "</h3><p>" + h("oprita-text") + "</p>" +
+          '<ol class="path">' +
+            step(1, h("cheie-titlu"), "<p>" + h("cheie-text") + '</p><figure class="photo"><img src="media/anexa-cheie.jpg" width="900" height="720" alt="' + L.annexAlt + '" loading="lazy"></figure>') +
+            step(2, h("pornire-titlu"), '<ol class="mini">' + li("pornire-1") + li("pornire-2") + li("pornire-3") + "</ol>" + clip("media/centrala-pornire.mp4", "media/centrala-pornire-poster.jpg", h("pornire-video"))) +
+            step(3, h("asteptati-titlu"), "<p>" + h("asteptati-text") + "</p>") +
+          "</ol>" +
+        "</div>" +
+        '<div class="sub"><h3>' + h("apa-titlu") + "</h3><p>" + h("apa-text") + "</p>" + (H["apa-gol"] ? '<p class="note">' + h("apa-gol") + "</p>" : "") + "</div>" +
+        '<div class="sub"><h3>' + h("termostate-titlu") + "</h3><p>" + h("termostate-text") + "</p>" +
+          '<div class="thermos">' +
+            '<figure><img src="media/termostat-parter.jpg" width="720" height="734" alt="' + L.groundAlt + '" loading="lazy"><figcaption>' + h("termostat-parter") + "</figcaption></figure>" +
+            '<figure><img src="media/termostat-mansarda.jpg" width="720" height="600" alt="' + L.atticAlt + '" loading="lazy"><figcaption>' + h("termostat-mansarda") + "</figcaption></figure>" +
+          "</div>" +
+          (H["termostate-sfat"] ? '<p class="note">' + h("termostate-sfat") + "</p>" : "") +
+        "</div>" +
+        '<div class="sub"><h3>' + h("peleti-titlu") + "</h3><p>" + h("peleti-text") + '</p><ol class="mini">' + li("peleti-1") + li("peleti-2") + li("peleti-3") + "</ol>" +
+          clip("media/peleti-rezervor.mp4", "media/peleti-rezervor-poster.jpg", h("peleti-video")) +
+        "</div>" +
+      "</section>";
+
+    var NAV = [["drum", L.navRoad, true], ["sosire", L.navArrive, true], ["wifi", "Wi-Fi", true], ["caldura", L.navHeat, !!heat],
+      ["reguli", L.navRules, !!rules], ["zona", L.navZone, c.zona.length > 0], ["masa", L.navFood, c.restaurante.length > 0]];
+    var secnav = '<nav class="secnav" aria-label="' + L.navAria + '"><div class="secnav-in">' +
+      NAV.filter(function(n){ return n[2]; }).map(function(n){ return '<a href="#' + n[0] + '" data-sec="' + n[0] + '">' + n[1] + "</a>"; }).join("") +
+      "</div></nav>";
+
     var langs = '<div class="langs" role="group" aria-label="' + L.langs + '">' +
       ["ro", "ru"].map(function(l){
         return '<button type="button" data-lang="' + l + '" lang="' + l + '" aria-pressed="' + (l === lang) + '">' + l.toUpperCase() + "</button>";
@@ -354,6 +440,7 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
         '<div class="cell wide"><span class="lbl">' + L.code + "</span>" + (code ? '<span class="dial" aria-label="' + L.codeAria + " " + esc(code) + '">' + dial(code) + "</span>" : '<span class="sub">' + L.codeMsg + "</span>") + "</div>" +
         '<div class="cell wide"><span class="lbl">' + L.wifiPass + '</span><span class="val">' + esc(D["wifi-parola"]) + '</span><button type="button" class="copy" data-copy="' + esc(D["wifi-parola"]) + '">' + L.copy + "</button></div>" +
       "</section>" +
+      secnav +
 
       '<section class="block" id="drum">' +
         '<div class="block-head"><span class="lbl">' + L.roadLbl + "</span><h2>" + L.roadH + "</h2></div>" +
@@ -388,6 +475,7 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
           '<div class="cell"><span class="lbl">' + L.password + '</span><span class="val">' + esc(D["wifi-parola"]) + '</span><button type="button" class="copy" data-copy="' + esc(D["wifi-parola"]) + '">' + L.copy + "</button></div>" +
         "</div>" + (D["wifi-nota"] ? '<p class="wifi-note">' + esc(D["wifi-nota"]) + "</p>" : "") +
       "</section>" +
+      heat +
 
       (rules ? '<section class="block" id="reguli"><div class="block-head"><span class="lbl">' + L.rulesLbl + "</span><h2>" + L.rulesH + '</h2></div><ul class="rules">' + rules + "</ul></section>" : "") +
       (c.zona.length ? '<section class="block" id="zona"><div class="block-head"><span class="lbl">' + L.zoneLbl + "</span><h2>" + L.zoneH + '</h2></div><ul class="places">' + places(c.zona) + "</ul></section>" : "") +
@@ -404,8 +492,33 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
     toast.timer = setTimeout(function(){ toastEl.hidden = true; }, 3200);
   }
 
+  var spy = null;
+  function watchSections(){
+    if (spy) spy.disconnect();
+    var links = app.querySelectorAll(".secnav a"), strip = app.querySelector(".secnav-in");
+    if (!links.length || !("IntersectionObserver" in window)) return;
+    function mark(id){
+      links.forEach(function(a){
+        var on = a.getAttribute("data-sec") === id;
+        a.classList.toggle("on", on);
+        if (on) { a.setAttribute("aria-current", "true"); if (strip) strip.scrollTo({ left: a.offsetLeft - strip.clientWidth / 2 + a.offsetWidth / 2, behavior: "smooth" }); }
+        else a.removeAttribute("aria-current");
+      });
+    }
+    spy = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting) mark(e.target.id); });
+    }, { rootMargin: "-90px 0px -65% 0px" });
+    links.forEach(function(a){ var s = document.getElementById(a.getAttribute("data-sec")); if (s) spy.observe(s); });
+  }
+  function goToHash(){
+    var id = (location.hash || "").slice(1);
+    if (!/^[a-z]+$/.test(id) || id === "ro" || id === "ru") return;
+    var el = document.getElementById(id);
+    if (el) el.scrollIntoView();
+  }
+
   function show(l){
-    return load(l).then(render).catch(function(){
+    return load(l).then(render).then(watchSections).catch(function(){
       app.innerHTML = '<div class="state"><p>' + L.failed + '</p><p><button type="button" class="btn" onclick="location.reload()">' + L.reload + "</button></p></div>";
     });
   }
@@ -457,7 +570,7 @@ footer .motto{font-family:var(--f-display);font-style:italic;font-size:15px;colo
   applyLang(lang, false);
   var loadingEl = app.querySelector(".state");
   if (loadingEl) loadingEl.textContent = L.loading;
-  show(lang);
+  show(lang).then(goToHash);
 
   /* keep the page available offline once it has been opened */
   if ("serviceWorker" in navigator && location.protocol === "https:") {
