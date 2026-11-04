@@ -481,7 +481,7 @@ ol.mini li::marker{font-family:var(--f-mono);font-size:.9em;color:var(--bronze)}
       (c.zona.length ? '<section class="block" id="zona"><div class="block-head"><span class="lbl">' + L.zoneLbl + "</span><h2>" + L.zoneH + '</h2></div><ul class="places">' + places(c.zona) + "</ul></section>" : "") +
       (c.restaurante.length ? '<section class="block" id="masa"><div class="block-head"><span class="lbl">' + L.foodLbl + "</span><h2>" + L.foodH + '</h2></div><ul class="places">' + places(c.restaurante) + "</ul></section>" : "") +
 
-      'heat +
+      heat +
       '<section class="outro">' + (S.final ? "<p>" + t("final") + "</p>" : "") + phone + "</section>" +
       '<footer><span class="motto">' + L.motto + "</span><span>PineRoots · " + esc(D["adresa"]) + "</span></footer>";
   }
